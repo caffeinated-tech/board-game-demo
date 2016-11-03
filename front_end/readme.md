@@ -12,11 +12,34 @@ sudo apt-get install nodejs
 Create fron_end and back_end directories
 
 # install node modules
+sudo npm install gulp-cli -g
+
 npm init
 
-npm install gulp --save-dev
 npm install coffee-script --save-dev
+npm install gulp --save-dev
 npm install gulp-coffee --save-dev 
+npm install gulp-watch  --save-dev
+
 npm install reactjs --save
+npm install react-dnd --save
+npm install react-dnd-html5-backend --save
 
 # Create gulp file
+
+
+
+# Rails:
+sudo apt-get install gcc
+sudo apt-get install ruby-dev
+sudo apt-get install zlib1g-dev 
+sudo gem install rails
+
+# build rails framework
+rails new back_end/
+cd back_end
+bundle install
+sudo apt-get install libsqlite3-dev
+
+# run rails
+rails s
