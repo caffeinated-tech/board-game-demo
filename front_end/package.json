@@ -1,0 +1,27 @@
+{
+  "name": "board-game-demo",
+  "version": "0.0.1",
+  "description": "A board game in react / reflux / coffeescript",
+  "main": "index.js",
+  "dependencies": {
+    "reactjs": "^1.0.0"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.11.1",
+    "gulp": "^3.9.1",
+    "gulp-coffee": "^2.3.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/caffeinated-tech/board-game-demo.git"
+  },
+  "author": "liam@caffeinated.tech",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/caffeinated-tech/board-game-demo/issues"
+  },
+  "homepage": "https://github.com/caffeinated-tech/board-game-demo#readme"
+}
