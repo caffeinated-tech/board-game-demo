@@ -12,4 +12,5 @@
 //
 //= require index
 //= require_tree .
+
 console.log('loaded application.js')

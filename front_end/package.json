@@ -9,10 +9,14 @@
     "reactjs": "^1.0.0"
   },
   "devDependencies": {
+    "browserify": "^13.1.1",
+    "browserify-incremental": "^3.1.1",
     "coffee-script": "^1.11.1",
+    "coffeeify": "^2.0.1",
     "gulp": "^3.9.1",
     "gulp-coffee": "^2.3.2",
-    "gulp-watch": "^4.3.10"
+    "gulp-watch": "^4.3.10",
+    "watch": "^1.0.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

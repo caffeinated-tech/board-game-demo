@@ -16,18 +16,9 @@ sudo npm install gulp-cli -g
 
 npm init
 
-npm install coffee-script --save-dev
-npm install gulp --save-dev
-npm install gulp-coffee --save-dev 
-npm install gulp-watch  --save-dev
-
-npm install reactjs --save
-npm install react-dnd --save
-npm install react-dnd-html5-backend --save
+npm install
 
 # Create gulp file
-
-
 
 # Rails:
 sudo apt-get install gcc
