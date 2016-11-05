@@ -19,7 +19,7 @@ build = ->
 
 	b.bundle()
 		.on('error', (error) ->
-			console.log error
+			console.log error.toString()
 			this.emit 'end') 
 		.on('end', ->
 			console.log 'finished compiling coffeescript' 

@@ -6,7 +6,9 @@
   "dependencies": {
     "react-dnd": "^2.1.4",
     "react-dnd-html5-backend": "^2.1.2",
-    "reactjs": "^1.0.0"
+    "react-dom": "^15.3.2",
+    "reactjs": "^1.0.0",
+    "reflux": "^0.4.1"
   },
   "devDependencies": {
     "browserify": "^13.1.1",
