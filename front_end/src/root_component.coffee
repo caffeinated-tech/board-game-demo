@@ -1,8 +1,20 @@
+{ Router, Route, Link, browserHistory } = ReactRouter
+# for some reason reactrouter doesn't export factories, so let's convert them
+Router = React.createFactory Router
+Route = React.createFactory Route
+Link = React.createFactory Link
 { div } = React.DOM
 
-class Root extends React.Component
+class RootComponent extends React.Component
   render: ->
-  	div {},
-  		Game.Modules.Game.component()
+    Game = React.createElement(App.Modules.Game.component) 
 
-module.exports = React.createFactory Root
+    div {},
+      Router 
+        history: browserHistory
+        ,
+        Route 
+          path: '/'
+          component: App.Modules.Game.component
+
+module.exports = RootComponent

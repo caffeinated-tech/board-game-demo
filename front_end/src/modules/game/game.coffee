@@ -6,4 +6,4 @@ class Game extends React.Component
     div {},
       'This is the Game'
 
-module.exports = React.createFactory Game
+module.exports = Game

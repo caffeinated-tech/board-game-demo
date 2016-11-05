@@ -1,5 +1,5 @@
-component = require './root_component'
 SELECTOR = '#react'
+component = React.createFactory require('./root_component')
 
 Initializer =
   mount: ->

@@ -3,11 +3,16 @@ console.log 'hello world'
 # load libraries
 window.React = require 'react'
 window.ReactDOM = require 'react-dom'
+window.ReactRouter = require 'react-router'
 window.Reflux = require 'reflux'
 window.ReactDnD = require 'react-dnd'
 
-window.Game = 
+require('./monkey_patches')()
+
+# load modules
+window.App = 
   Modules: require './modules/module'
   Initializer: require './initializer'
 
-window.Game.Initializer.mount()
+
+window.App.Initializer.mount()
