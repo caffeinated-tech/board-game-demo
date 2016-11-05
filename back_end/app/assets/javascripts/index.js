@@ -32656,7 +32656,7 @@ window.App = {
 window.App.Initializer.mount();
 
 
-},{"./initializer":399,"./modules/module":402,"./monkey_patches":403,"react":363,"react-dnd":167,"react-dom":187,"react-router":214,"reflux":390}],399:[function(require,module,exports){
+},{"./initializer":399,"./modules/module":408,"./monkey_patches":409,"react":363,"react-dnd":167,"react-dom":187,"react-router":214,"reflux":390}],399:[function(require,module,exports){
 var Initializer, SELECTOR, component;
 
 SELECTOR = '#react';
@@ -32675,7 +32675,7 @@ Initializer = {
 module.exports = Initializer;
 
 
-},{"./root_component":404}],400:[function(require,module,exports){
+},{"./root_component":410}],400:[function(require,module,exports){
 var Game, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -32712,16 +32712,141 @@ module.exports = GameModule;
 
 
 },{"./game":400}],402:[function(require,module,exports){
+var Home, div,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+div = React.DOM.div;
+
+Home = (function(superClass) {
+  extend(Home, superClass);
+
+  function Home() {
+    return Home.__super__.constructor.apply(this, arguments);
+  }
+
+  Home.prototype.render = function() {
+    console.log('render the Home');
+    return div({}, 'This is the Home');
+  };
+
+  return Home;
+
+})(React.Component);
+
+module.exports = Home;
+
+
+},{}],403:[function(require,module,exports){
+var HomeModule;
+
+HomeModule = {
+  component: require('./home')
+};
+
+module.exports = HomeModule;
+
+
+},{"./home":402}],404:[function(require,module,exports){
+var Layout, Link, div, li, ref, ul,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+Link = ReactRouter.Link;
+
+Link = React.createFactory(Link);
+
+ref = React.DOM, div = ref.div, ul = ref.ul, li = ref.li;
+
+Layout = (function(superClass) {
+  extend(Layout, superClass);
+
+  function Layout() {
+    return Layout.__super__.constructor.apply(this, arguments);
+  }
+
+  Layout.prototype.render = function() {
+    console.log('render the Layout');
+    return div({}, 'This is the Layout', div({}, div({
+      className: 'nav-bar'
+    }, ul({}, li({}, Link({
+      to: '/'
+    }, 'Home')), li({}, Link({
+      to: '/game'
+    }, 'Game')), li({}, Link({
+      to: '/lobby'
+    }, 'Lobby'))))), div({
+      className: 'content'
+    }, this.props.children));
+  };
+
+  return Layout;
+
+})(React.Component);
+
+module.exports = Layout;
+
+
+},{}],405:[function(require,module,exports){
+var LayoutModule;
+
+LayoutModule = {
+  component: require('./layout')
+};
+
+module.exports = LayoutModule;
+
+
+},{"./layout":404}],406:[function(require,module,exports){
+var Lobby, div,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+div = React.DOM.div;
+
+Lobby = (function(superClass) {
+  extend(Lobby, superClass);
+
+  function Lobby() {
+    return Lobby.__super__.constructor.apply(this, arguments);
+  }
+
+  Lobby.prototype.render = function() {
+    console.log('render the Lobby');
+    return div({}, 'This is the Lobby');
+  };
+
+  return Lobby;
+
+})(React.Component);
+
+module.exports = Lobby;
+
+
+},{}],407:[function(require,module,exports){
+var LobbyModule;
+
+LobbyModule = {
+  component: require('./lobby')
+};
+
+module.exports = LobbyModule;
+
+
+},{"./lobby":406}],408:[function(require,module,exports){
 var Modules;
 
 Modules = {
-  Game: require('./game/module')
+  Game: require('./game/module'),
+  Home: require('./home/module'),
+  Lobby: require('./lobby/module'),
+  Layout: require('./layout/module')
 };
 
 module.exports = Modules;
 
 
-},{"./game/module":401}],403:[function(require,module,exports){
+},{"./game/module":401,"./home/module":403,"./layout/module":405,"./lobby/module":407}],409:[function(require,module,exports){
 var defineMonkeyPatches;
 
 defineMonkeyPatches = function() {
@@ -32731,12 +32856,12 @@ defineMonkeyPatches = function() {
 module.exports = defineMonkeyPatches;
 
 
-},{}],404:[function(require,module,exports){
-var Link, RootComponent, Route, Router, browserHistory, div,
+},{}],410:[function(require,module,exports){
+var IndexRedirect, Link, RootComponent, Route, Router, browserHistory,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-Router = ReactRouter.Router, Route = ReactRouter.Route, Link = ReactRouter.Link, browserHistory = ReactRouter.browserHistory;
+Router = ReactRouter.Router, Route = ReactRouter.Route, Link = ReactRouter.Link, browserHistory = ReactRouter.browserHistory, IndexRedirect = ReactRouter.IndexRedirect;
 
 Router = React.createFactory(Router);
 
@@ -32744,7 +32869,7 @@ Route = React.createFactory(Route);
 
 Link = React.createFactory(Link);
 
-div = React.DOM.div;
+IndexRedirect = React.createFactory(IndexRedirect);
 
 RootComponent = (function(superClass) {
   extend(RootComponent, superClass);
@@ -32754,13 +32879,22 @@ RootComponent = (function(superClass) {
   }
 
   RootComponent.prototype.render = function() {
-    var Game;
-    Game = React.createElement(App.Modules.Game.component);
-    return div({}, Router({
+    return Router({
       history: browserHistory
     }, Route({
       path: '/',
+      component: App.Modules.Layout.component
+    }, IndexRedirect({
+      to: '/home'
+    }), Route({
+      path: '/home',
+      component: App.Modules.Home.component
+    }), Route({
+      path: '/game',
       component: App.Modules.Game.component
+    }), Route({
+      path: '/lobby',
+      component: App.Modules.Lobby.component
     })));
   };
 
