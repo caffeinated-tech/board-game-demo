@@ -1,4 +1,5 @@
+
 LayoutModule =
-	component: require './layout'
+	component: require('./layout')
 
 module.exports = LayoutModule

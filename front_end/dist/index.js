@@ -32656,7 +32656,7 @@ window.App = {
 window.App.Initializer.mount();
 
 
-},{"./initializer":399,"./modules/module":408,"./monkey_patches":409,"react":363,"react-dnd":167,"react-dom":187,"react-router":214,"reflux":390}],399:[function(require,module,exports){
+},{"./initializer":399,"./modules/module":409,"./monkey_patches":410,"react":363,"react-dnd":167,"react-dom":187,"react-router":214,"reflux":390}],399:[function(require,module,exports){
 var Initializer, SELECTOR, component;
 
 SELECTOR = '#react';
@@ -32675,7 +32675,7 @@ Initializer = {
 module.exports = Initializer;
 
 
-},{"./root_component":410}],400:[function(require,module,exports){
+},{"./root_component":411}],400:[function(require,module,exports){
 var Game, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -32748,15 +32748,50 @@ module.exports = HomeModule;
 
 
 },{"./home":402}],404:[function(require,module,exports){
-var Layout, Link, div, li, ref, ul,
+var Link, NavBar, div, li, ref, ul,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-Link = ReactRouter.Link;
+ref = React.DOM, div = ref.div, ul = ref.ul, li = ref.li;
 
-Link = React.createFactory(Link);
+Link = React.createFactory(ReactRouter.Link);
+
+NavBar = (function(superClass) {
+  extend(NavBar, superClass);
+
+  function NavBar() {
+    return NavBar.__super__.constructor.apply(this, arguments);
+  }
+
+  NavBar.prototype.render = function() {
+    return div({
+      className: 'nav-bar'
+    }, ul({}, li({
+      className: 'logo'
+    }, 'React-Check'), li({}, Link({
+      to: '/'
+    }, 'Home')), li({}, Link({
+      to: '/game'
+    }, 'Game')), li({}, Link({
+      to: '/lobby'
+    }, 'Lobby'))));
+  };
+
+  return NavBar;
+
+})(React.Component);
+
+module.exports = React.createFactory(NavBar);
+
+
+},{}],405:[function(require,module,exports){
+var Layout, NavBar, div, li, ref, ul,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
 ref = React.DOM, div = ref.div, ul = ref.ul, li = ref.li;
+
+NavBar = require('./components/nav_bar');
 
 Layout = (function(superClass) {
   extend(Layout, superClass);
@@ -32766,16 +32801,7 @@ Layout = (function(superClass) {
   }
 
   Layout.prototype.render = function() {
-    console.log('render the Layout');
-    return div({}, 'This is the Layout', div({}, div({
-      className: 'nav-bar'
-    }, ul({}, li({}, Link({
-      to: '/'
-    }, 'Home')), li({}, Link({
-      to: '/game'
-    }, 'Game')), li({}, Link({
-      to: '/lobby'
-    }, 'Lobby'))))), div({
+    return div({}, NavBar(), div({
       className: 'content'
     }, this.props.children));
   };
@@ -32787,7 +32813,7 @@ Layout = (function(superClass) {
 module.exports = Layout;
 
 
-},{}],405:[function(require,module,exports){
+},{"./components/nav_bar":404}],406:[function(require,module,exports){
 var LayoutModule;
 
 LayoutModule = {
@@ -32797,7 +32823,7 @@ LayoutModule = {
 module.exports = LayoutModule;
 
 
-},{"./layout":404}],406:[function(require,module,exports){
+},{"./layout":405}],407:[function(require,module,exports){
 var Lobby, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -32823,7 +32849,7 @@ Lobby = (function(superClass) {
 module.exports = Lobby;
 
 
-},{}],407:[function(require,module,exports){
+},{}],408:[function(require,module,exports){
 var LobbyModule;
 
 LobbyModule = {
@@ -32833,7 +32859,7 @@ LobbyModule = {
 module.exports = LobbyModule;
 
 
-},{"./lobby":406}],408:[function(require,module,exports){
+},{"./lobby":407}],409:[function(require,module,exports){
 var Modules;
 
 Modules = {
@@ -32846,7 +32872,7 @@ Modules = {
 module.exports = Modules;
 
 
-},{"./game/module":401,"./home/module":403,"./layout/module":405,"./lobby/module":407}],409:[function(require,module,exports){
+},{"./game/module":401,"./home/module":403,"./layout/module":406,"./lobby/module":408}],410:[function(require,module,exports){
 var defineMonkeyPatches;
 
 defineMonkeyPatches = function() {
@@ -32856,12 +32882,12 @@ defineMonkeyPatches = function() {
 module.exports = defineMonkeyPatches;
 
 
-},{}],410:[function(require,module,exports){
-var IndexRedirect, Link, RootComponent, Route, Router, browserHistory,
+},{}],411:[function(require,module,exports){
+var IndexRoute, Link, RootComponent, Route, Router, browserHistory,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-Router = ReactRouter.Router, Route = ReactRouter.Route, Link = ReactRouter.Link, browserHistory = ReactRouter.browserHistory, IndexRedirect = ReactRouter.IndexRedirect;
+Router = ReactRouter.Router, Route = ReactRouter.Route, Link = ReactRouter.Link, browserHistory = ReactRouter.browserHistory, IndexRoute = ReactRouter.IndexRoute;
 
 Router = React.createFactory(Router);
 
@@ -32869,7 +32895,7 @@ Route = React.createFactory(Route);
 
 Link = React.createFactory(Link);
 
-IndexRedirect = React.createFactory(IndexRedirect);
+IndexRoute = React.createFactory(IndexRoute);
 
 RootComponent = (function(superClass) {
   extend(RootComponent, superClass);
@@ -32884,10 +32910,7 @@ RootComponent = (function(superClass) {
     }, Route({
       path: '/',
       component: App.Modules.Layout.component
-    }, IndexRedirect({
-      to: '/home'
-    }), Route({
-      path: '/home',
+    }, IndexRoute({
       component: App.Modules.Home.component
     }), Route({
       path: '/game',

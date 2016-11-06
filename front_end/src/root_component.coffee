@@ -1,9 +1,9 @@
-{ Router, Route, Link, browserHistory, IndexRedirect } = ReactRouter
+{ Router, Route, Link, browserHistory, IndexRoute } = ReactRouter
 # for some reason reactrouter doesn't export factories, so let's convert them
 Router = React.createFactory Router
 Route = React.createFactory Route
 Link = React.createFactory Link
-IndexRedirect = React.createFactory IndexRedirect
+IndexRoute = React.createFactory IndexRoute
 
 class RootComponent extends React.Component
   render: ->
@@ -14,10 +14,7 @@ class RootComponent extends React.Component
         path: '/'
         component: App.Modules.Layout.component
         ,
-        IndexRedirect 
-          to: '/home'
-        Route 
-          path: '/home'
+        IndexRoute
           component: App.Modules.Home.component
         Route 
           path: '/game'
