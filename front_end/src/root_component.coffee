@@ -6,6 +6,7 @@ Link = React.createFactory Link
 IndexRoute = React.createFactory IndexRoute
 
 class RootComponent extends React.Component
+
   render: ->
     Router 
       history: browserHistory
@@ -15,12 +16,13 @@ class RootComponent extends React.Component
         component: App.Modules.Layout.component
         ,
         IndexRoute
-          component: App.Modules.Home.component
+          component: App.Modules.Home.rootComponent
         Route 
           path: '/game'
           component: App.Modules.Game.component
         Route 
           path: '/lobby'
           component: App.Modules.Lobby.component
+
 
 module.exports = RootComponent

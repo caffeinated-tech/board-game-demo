@@ -32634,6 +32634,52 @@ module.exports = warning;
 
 }).call(this,require('_process'))
 },{"_process":153}],398:[function(require,module,exports){
+var ConntectStore,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ConntectStore = (function(superClass) {
+  extend(ConntectStore, superClass);
+
+  function ConntectStore() {
+    this.onStatusChange = bind(this.onStatusChange, this);
+    return ConntectStore.__super__.constructor.apply(this, arguments);
+  }
+
+  ConntectStore.prototype.onStatusChange = function(newProps) {
+    console.log('onStatusChange', newProps);
+    return this.setState(newProps);
+  };
+
+  ConntectStore.prototype.componentDidMount = function() {
+    console.log('componentDidMount');
+    return this.unsubscribe = this.store.listen(this.onStatusChange);
+  };
+
+  ConntectStore.prototype.componentWillUnmount = function() {
+    console.log('componentWillUnmount');
+    return this.unsubscribe();
+  };
+
+  return ConntectStore;
+
+})(React.Component);
+
+module.exports = ConntectStore;
+
+
+},{}],399:[function(require,module,exports){
+var Helpers;
+
+Helpers = {
+  ConnectStore: require('./connect_store')
+};
+
+module.exports = Helpers;
+
+
+},{"./connect_store":398}],400:[function(require,module,exports){
 console.log('hello world');
 
 window.React = require('react');
@@ -32648,15 +32694,20 @@ window.ReactDnD = require('react-dnd');
 
 require('./monkey_patches')();
 
-window.App = {
-  Modules: require('./modules/module'),
-  Initializer: require('./initializer')
-};
+window.App = {};
+
+window.App.Helpers = require('./helpers/helper');
+
+window.App.Modules = require('./modules/module');
+
+window.App.Initializer = require('./initializer');
+
+window.App.Initializer.connectStores();
 
 window.App.Initializer.mount();
 
 
-},{"./initializer":399,"./modules/module":409,"./monkey_patches":410,"react":363,"react-dnd":167,"react-dom":187,"react-router":214,"reflux":390}],399:[function(require,module,exports){
+},{"./helpers/helper":399,"./initializer":401,"./modules/module":418,"./monkey_patches":419,"react":363,"react-dnd":167,"react-dom":187,"react-router":214,"reflux":390}],401:[function(require,module,exports){
 var Initializer, SELECTOR, component;
 
 SELECTOR = '#react';
@@ -32667,6 +32718,9 @@ Initializer = {
   mount: function() {
     return ReactDOM.render(component(), document.querySelector(SELECTOR));
   },
+  connectStores: function() {
+    return App.Modules.Home.store.registerListeners();
+  },
   unmount: function() {
     return unmountComponentAtNode;
   }
@@ -32675,7 +32729,7 @@ Initializer = {
 module.exports = Initializer;
 
 
-},{"./root_component":411}],400:[function(require,module,exports){
+},{"./root_component":420}],402:[function(require,module,exports){
 var Game, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -32701,7 +32755,7 @@ Game = (function(superClass) {
 module.exports = Game;
 
 
-},{}],401:[function(require,module,exports){
+},{}],403:[function(require,module,exports){
 var GameModule;
 
 GameModule = {
@@ -32711,12 +32765,56 @@ GameModule = {
 module.exports = GameModule;
 
 
-},{"./game":400}],402:[function(require,module,exports){
-var Home, div,
+},{"./game":402}],404:[function(require,module,exports){
+var HomeActions;
+
+HomeActions = Reflux.createActions({
+  signUp: {
+    async: true
+  },
+  logIn: {
+    async: true
+  }
+});
+
+module.exports = HomeActions;
+
+
+},{}],405:[function(require,module,exports){
+var EmailInput, div, input, label, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-div = React.DOM.div;
+ref = React.DOM, div = ref.div, input = ref.input, label = ref.label;
+
+EmailInput = (function(superClass) {
+  extend(EmailInput, superClass);
+
+  function EmailInput() {
+    return EmailInput.__super__.constructor.apply(this, arguments);
+  }
+
+  EmailInput.prototype.render = function() {
+    return div({}, label({}, 'Email'), input({}));
+  };
+
+  return EmailInput;
+
+})(React.Component);
+
+module.exports = React.createFactory(EmailInput);
+
+
+},{}],406:[function(require,module,exports){
+var Home, LogInForm, SignUpForm, div, h1, ref,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ref = React.DOM, div = ref.div, h1 = ref.h1;
+
+LogInForm = require('./log_in_form');
+
+SignUpForm = require('./sign_up_form');
 
 Home = (function(superClass) {
   extend(Home, superClass);
@@ -32726,28 +32824,162 @@ Home = (function(superClass) {
   }
 
   Home.prototype.render = function() {
-    console.log('render the Home');
-    return div({}, 'This is the Home');
+    console.log('render the Home', this.props);
+    return div({}, h1({}, 'Welcome to the React Board Game Demo'), div({}), LogInForm(), div({}), SignUpForm());
   };
 
   return Home;
 
 })(React.Component);
 
-module.exports = Home;
+module.exports = React.createFactory(Home);
 
 
-},{}],403:[function(require,module,exports){
+},{"./log_in_form":407,"./sign_up_form":409}],407:[function(require,module,exports){
+var EmailInput, LogInForm, PasswordInput, div, h2, ref,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ref = React.DOM, div = ref.div, h2 = ref.h2;
+
+EmailInput = require('./email_input');
+
+PasswordInput = require('./password_input');
+
+LogInForm = (function(superClass) {
+  extend(LogInForm, superClass);
+
+  function LogInForm() {
+    return LogInForm.__super__.constructor.apply(this, arguments);
+  }
+
+  LogInForm.prototype.render = function() {
+    return div({}, h2({}, 'Log In'), div({}), EmailInput(), PasswordInput());
+  };
+
+  return LogInForm;
+
+})(React.Component);
+
+module.exports = React.createFactory(LogInForm);
+
+
+},{"./email_input":405,"./password_input":408}],408:[function(require,module,exports){
+var PasswordInput, div, input, label, ref,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ref = React.DOM, div = ref.div, input = ref.input, label = ref.label;
+
+PasswordInput = (function(superClass) {
+  extend(PasswordInput, superClass);
+
+  function PasswordInput() {
+    return PasswordInput.__super__.constructor.apply(this, arguments);
+  }
+
+  PasswordInput.prototype.render = function() {
+    return div({}, label({}, 'Password'), input({}));
+  };
+
+  return PasswordInput;
+
+})(React.Component);
+
+module.exports = React.createFactory(PasswordInput);
+
+
+},{}],409:[function(require,module,exports){
+var EmailInput, PasswordInput, SignUpForm, div, h2, ref,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ref = React.DOM, div = ref.div, h2 = ref.h2;
+
+EmailInput = require('./email_input');
+
+PasswordInput = require('./password_input');
+
+SignUpForm = (function(superClass) {
+  extend(SignUpForm, superClass);
+
+  function SignUpForm() {
+    return SignUpForm.__super__.constructor.apply(this, arguments);
+  }
+
+  SignUpForm.prototype.render = function() {
+    return div({}, h2({}, 'Sign up'), div({}), EmailInput(), PasswordInput());
+  };
+
+  return SignUpForm;
+
+})(React.Component);
+
+module.exports = React.createFactory(SignUpForm);
+
+
+},{"./email_input":405,"./password_input":408}],410:[function(require,module,exports){
 var HomeModule;
 
 HomeModule = {
-  component: require('./home')
+  rootComponent: require('./root_component'),
+  store: require('./store'),
+  actions: require('./actions')
 };
 
 module.exports = HomeModule;
 
 
-},{"./home":402}],404:[function(require,module,exports){
+},{"./actions":404,"./root_component":411,"./store":412}],411:[function(require,module,exports){
+var Home, RootComponent, div,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+div = React.DOM.div;
+
+Home = require('./components/home');
+
+RootComponent = (function(superClass) {
+  extend(RootComponent, superClass);
+
+  function RootComponent(props) {
+    console.log("CreateHome RootComponent");
+    this.store = App.Modules.Home.store;
+    RootComponent.__super__.constructor.call(this, props);
+  }
+
+  RootComponent.prototype.render = function() {
+    console.log('render the RootComponent contianter');
+    return div({}, Home(this.state));
+  };
+
+  return RootComponent;
+
+})(App.Helpers.ConnectStore);
+
+module.exports = RootComponent;
+
+
+},{"./components/home":406}],412:[function(require,module,exports){
+var HomeStore;
+
+HomeStore = Reflux.createStore({
+  init: function() {
+    return this.user = {};
+  },
+  registerListeners: function() {
+    return this.listenToMany(App.Modules.Home.actions);
+  },
+  loadData: function(data) {
+    this.data = data;
+    return this.trigger(this.data);
+  }
+});
+
+module.exports = HomeStore;
+
+
+},{}],413:[function(require,module,exports){
 var Link, NavBar, div, li, ref, ul,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -32784,7 +33016,7 @@ NavBar = (function(superClass) {
 module.exports = React.createFactory(NavBar);
 
 
-},{}],405:[function(require,module,exports){
+},{}],414:[function(require,module,exports){
 var Layout, NavBar, div, li, ref, ul,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -32801,6 +33033,7 @@ Layout = (function(superClass) {
   }
 
   Layout.prototype.render = function() {
+    console.log("render Layout");
     return div({}, NavBar(), div({
       className: 'content'
     }, this.props.children));
@@ -32813,7 +33046,7 @@ Layout = (function(superClass) {
 module.exports = Layout;
 
 
-},{"./components/nav_bar":404}],406:[function(require,module,exports){
+},{"./components/nav_bar":413}],415:[function(require,module,exports){
 var LayoutModule;
 
 LayoutModule = {
@@ -32823,7 +33056,7 @@ LayoutModule = {
 module.exports = LayoutModule;
 
 
-},{"./layout":405}],407:[function(require,module,exports){
+},{"./layout":414}],416:[function(require,module,exports){
 var Lobby, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -32849,7 +33082,7 @@ Lobby = (function(superClass) {
 module.exports = Lobby;
 
 
-},{}],408:[function(require,module,exports){
+},{}],417:[function(require,module,exports){
 var LobbyModule;
 
 LobbyModule = {
@@ -32859,7 +33092,7 @@ LobbyModule = {
 module.exports = LobbyModule;
 
 
-},{"./lobby":407}],409:[function(require,module,exports){
+},{"./lobby":416}],418:[function(require,module,exports){
 var Modules;
 
 Modules = {
@@ -32872,7 +33105,7 @@ Modules = {
 module.exports = Modules;
 
 
-},{"./game/module":401,"./home/module":403,"./layout/module":406,"./lobby/module":408}],410:[function(require,module,exports){
+},{"./game/module":403,"./home/module":410,"./layout/module":415,"./lobby/module":417}],419:[function(require,module,exports){
 var defineMonkeyPatches;
 
 defineMonkeyPatches = function() {
@@ -32882,7 +33115,7 @@ defineMonkeyPatches = function() {
 module.exports = defineMonkeyPatches;
 
 
-},{}],411:[function(require,module,exports){
+},{}],420:[function(require,module,exports){
 var IndexRoute, Link, RootComponent, Route, Router, browserHistory,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -32911,7 +33144,7 @@ RootComponent = (function(superClass) {
       path: '/',
       component: App.Modules.Layout.component
     }, IndexRoute({
-      component: App.Modules.Home.component
+      component: App.Modules.Home.rootComponent
     }), Route({
       path: '/game',
       component: App.Modules.Game.component
@@ -32928,4 +33161,4 @@ RootComponent = (function(superClass) {
 module.exports = RootComponent;
 
 
-},{}]},{},[398]);
+},{}]},{},[400]);

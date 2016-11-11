@@ -10,9 +10,11 @@ window.ReactDnD = require 'react-dnd'
 require('./monkey_patches')()
 
 # load modules
-window.App = 
-  Modules: require './modules/module'
-  Initializer: require './initializer'
+window.App = {} 
+window.App.Helpers =  require './helpers/helper'
+window.App.Modules = require './modules/module'
+window.App.Initializer = require './initializer'
 
 
+window.App.Initializer.connectStores()
 window.App.Initializer.mount()
