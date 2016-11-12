@@ -10,8 +10,9 @@ class Home extends React.Component
       h1 {},
         'Welcome to the React Board Game Demo'
       div {}
-        LogInForm()
-        div {}
-        SignUpForm()
+        if @props.display.login
+          LogInForm @props
+        else
+          SignUpForm @props
 
 module.exports = React.createFactory Home

@@ -2,6 +2,7 @@
 
 EmailInput = require('./email_input')
 PasswordInput = require('./password_input')
+SwitchFormLink = require('./switch_form_link')
 
 class LogInForm extends React.Component
   render: ->
@@ -11,7 +12,7 @@ class LogInForm extends React.Component
       div {}
         EmailInput()
         PasswordInput()
-
-      
+        SwitchFormLink {},
+          "Signup Instead"  
         
 module.exports = React.createFactory LogInForm
