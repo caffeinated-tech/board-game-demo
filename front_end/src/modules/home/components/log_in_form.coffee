@@ -3,6 +3,7 @@
 EmailInput = require('./email_input')
 PasswordInput = require('./password_input')
 SwitchFormLink = require('./switch_form_link')
+SubmitButton = require('./submit_button')
 
 class LogInForm extends React.Component
   render: ->
@@ -10,8 +11,12 @@ class LogInForm extends React.Component
       h2 {},
         'Log In'
       div {}
-        EmailInput()
-        PasswordInput()
+        EmailInput @props
+        PasswordInput @props
+        SubmitButton
+          onClick: App.Modules.Home.actions.logIn
+          ,
+          "Log in"
         SwitchFormLink {},
           "Signup Instead"  
         
