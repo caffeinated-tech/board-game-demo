@@ -4,6 +4,7 @@
   "description": "A board game in react / reflux / coffeescript",
   "main": "index.js",
   "dependencies": {
+    "bluebird": "^3.4.6",
     "react-dnd": "^2.1.4",
     "react-dnd-html5-backend": "^2.1.2",
     "react-dom": "^15.3.2",

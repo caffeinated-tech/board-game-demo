@@ -5,4 +5,8 @@ Rails.application.routes.draw do
   get '/game', to: redirect('/')
   get '/lobby', to: redirect('/')
 
+
+  namespace :api do
+    resources :users, only: [:create]
+  end
 end

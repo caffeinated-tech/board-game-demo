@@ -8,6 +8,7 @@ HomeStore = Reflux.createStore
       errors:
         wrongPassword: false
         nameTaken: false
+    @inputs = {}
 
   registerListeners: ->
     @listenToMany App.Modules.Home.actions
@@ -15,6 +16,22 @@ HomeStore = Reflux.createStore
   onSwitchForm: ->
     @display.login = !@display.login
     @update()
+
+  onSignUp: ->
+    console.log 'onSignUp validate first'
+    App.Modules.Home.actions.apiSignUp
+      name: @inputs.name.value
+      password: @inputs.password.value
+
+  onApiSignUpCompleted: (res) ->
+    console.log 'c', res
+
+  onApiSignUpFailed: (res) ->
+    console.log 'f', res
+
+  onRegisterComponents: (args) ->
+    for name, element of args
+      @inputs[name] = element
 
   loadData: (data) ->
     @update()

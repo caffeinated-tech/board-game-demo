@@ -7,9 +7,16 @@ class NameInput extends React.Component
     div {},
       label {},
         'User name: '
-      input {}
+      input 
+        type: 'text'
+        ref: 'name'
       if @props.form.errors.nameTaken
         Error {},
           'This name is already taken'
+
+  componentDidMount: ->
+    App.Modules.Home.actions.registerComponents
+      name: @refs.name
+
 
 module.exports = React.createFactory NameInput

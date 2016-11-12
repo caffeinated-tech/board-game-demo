@@ -14,7 +14,7 @@ class SignUpForm extends React.Component
         NameInput @props
         PasswordInput @props
         SubmitButton
-          onClick: App.Modules.Home.SignUp
+          onClick: App.Modules.Home.actions.signUp
           ,
           "Sign up"
         SwitchFormLink {},
