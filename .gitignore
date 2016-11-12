@@ -1,0 +1,22 @@
+#sublime project
+*.sublime-project
+*.sublime-workspace
+
+# backend
+
+# Ignore bundler config.
+back_end/.bundle
+
+# Ignore the default SQLite database.
+back_end/db/*.sqlite3
+back_end/db/*.sqlite3-journal
+
+# Ignore all logfiles and tempfiles.
+back_end/log/*
+back_end/tmp/*
+!back_end/log/.keep
+!back_end/tmp/.keep
+
+# Ignore Byebug command history file.
+back_end/.byebug_history
+
