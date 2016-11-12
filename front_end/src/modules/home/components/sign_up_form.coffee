@@ -1,6 +1,6 @@
 { div, h2 } = React.DOM
 
-EmailInput = require('./email_input')
+NameInput = require('./name_input')
 PasswordInput = require('./password_input')
 SwitchFormLink = require('./switch_form_link')
 SubmitButton = require('./submit_button')
@@ -11,8 +11,8 @@ class SignUpForm extends React.Component
       h2 {},
         'Sign up'
       div {}
-        EmailInput()
-        PasswordInput()
+        NameInput @props
+        PasswordInput @props
         SubmitButton
           onClick: App.Modules.Home.SignUp
           ,

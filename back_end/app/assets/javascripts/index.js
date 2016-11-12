@@ -32705,7 +32705,7 @@ window.App.Initializer.connectStores();
 window.App.Initializer.mount();
 
 
-},{"./helpers/helper":399,"./initializer":401,"./modules/module":420,"./monkey_patches":421,"react":363,"react-dnd":167,"react-dom":187,"react-router":214,"reflux":390}],401:[function(require,module,exports){
+},{"./helpers/helper":399,"./initializer":401,"./modules/module":421,"./monkey_patches":422,"react":363,"react-dnd":167,"react-dom":187,"react-router":214,"reflux":390}],401:[function(require,module,exports){
 var Initializer, SELECTOR, component;
 
 SELECTOR = '#react';
@@ -32727,7 +32727,7 @@ Initializer = {
 module.exports = Initializer;
 
 
-},{"./root_component":422}],402:[function(require,module,exports){
+},{"./root_component":423}],402:[function(require,module,exports){
 var Game, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -32780,28 +32780,30 @@ module.exports = HomeActions;
 
 
 },{}],405:[function(require,module,exports){
-var EmailInput, div, input, label, ref,
+var Error, span,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-ref = React.DOM, div = ref.div, input = ref.input, label = ref.label;
+span = React.DOM.span;
 
-EmailInput = (function(superClass) {
-  extend(EmailInput, superClass);
+Error = (function(superClass) {
+  extend(Error, superClass);
 
-  function EmailInput() {
-    return EmailInput.__super__.constructor.apply(this, arguments);
+  function Error() {
+    return Error.__super__.constructor.apply(this, arguments);
   }
 
-  EmailInput.prototype.render = function() {
-    return div({}, label({}, 'Email'), input({}));
+  Error.prototype.render = function() {
+    return span({
+      className: 'error'
+    }, this.props.children);
   };
 
-  return EmailInput;
+  return Error;
 
 })(React.Component);
 
-module.exports = React.createFactory(EmailInput);
+module.exports = React.createFactory(Error);
 
 
 },{}],406:[function(require,module,exports){
@@ -32834,14 +32836,14 @@ Home = (function(superClass) {
 module.exports = React.createFactory(Home);
 
 
-},{"./log_in_form":407,"./sign_up_form":409}],407:[function(require,module,exports){
-var EmailInput, LogInForm, PasswordInput, SubmitButton, SwitchFormLink, div, h2, ref,
+},{"./log_in_form":407,"./sign_up_form":410}],407:[function(require,module,exports){
+var LogInForm, NameInput, PasswordInput, SubmitButton, SwitchFormLink, div, h2, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 ref = React.DOM, div = ref.div, h2 = ref.h2;
 
-EmailInput = require('./email_input');
+NameInput = require('./name_input');
 
 PasswordInput = require('./password_input');
 
@@ -32857,7 +32859,7 @@ LogInForm = (function(superClass) {
   }
 
   LogInForm.prototype.render = function() {
-    return div({}, h2({}, 'Log In'), div({}), EmailInput(this.props), PasswordInput(this.props), SubmitButton({
+    return div({}, h2({}, 'Log In'), div({}), NameInput(this.props), PasswordInput(this.props), SubmitButton({
       onClick: App.Modules.Home.actions.logIn
     }, "Log in"), SwitchFormLink({}, "Signup Instead"));
   };
@@ -32869,12 +32871,41 @@ LogInForm = (function(superClass) {
 module.exports = React.createFactory(LogInForm);
 
 
-},{"./email_input":405,"./password_input":408,"./submit_button":410,"./switch_form_link":411}],408:[function(require,module,exports){
-var PasswordInput, div, input, label, ref,
+},{"./name_input":408,"./password_input":409,"./submit_button":411,"./switch_form_link":412}],408:[function(require,module,exports){
+var Error, NameInput, div, input, label, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 ref = React.DOM, div = ref.div, input = ref.input, label = ref.label;
+
+Error = require('./error');
+
+NameInput = (function(superClass) {
+  extend(NameInput, superClass);
+
+  function NameInput() {
+    return NameInput.__super__.constructor.apply(this, arguments);
+  }
+
+  NameInput.prototype.render = function() {
+    return div({}, label({}, 'User name: '), input({}), this.props.form.errors.nameTaken ? Error({}, 'This name is already taken') : void 0);
+  };
+
+  return NameInput;
+
+})(React.Component);
+
+module.exports = React.createFactory(NameInput);
+
+
+},{"./error":405}],409:[function(require,module,exports){
+var Error, PasswordInput, div, input, label, ref,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ref = React.DOM, div = ref.div, input = ref.input, label = ref.label;
+
+Error = require('./error');
 
 PasswordInput = (function(superClass) {
   extend(PasswordInput, superClass);
@@ -32884,7 +32915,7 @@ PasswordInput = (function(superClass) {
   }
 
   PasswordInput.prototype.render = function() {
-    return div({}, label({}, 'Password'), input({}));
+    return div({}, label({}, 'Password'), input({}), this.props.form.errors.wrongPassword ? Error({}, 'Incorrect Password ') : void 0);
   };
 
   return PasswordInput;
@@ -32894,14 +32925,14 @@ PasswordInput = (function(superClass) {
 module.exports = React.createFactory(PasswordInput);
 
 
-},{}],409:[function(require,module,exports){
-var EmailInput, PasswordInput, SignUpForm, SubmitButton, SwitchFormLink, div, h2, ref,
+},{"./error":405}],410:[function(require,module,exports){
+var NameInput, PasswordInput, SignUpForm, SubmitButton, SwitchFormLink, div, h2, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 ref = React.DOM, div = ref.div, h2 = ref.h2;
 
-EmailInput = require('./email_input');
+NameInput = require('./name_input');
 
 PasswordInput = require('./password_input');
 
@@ -32917,7 +32948,7 @@ SignUpForm = (function(superClass) {
   }
 
   SignUpForm.prototype.render = function() {
-    return div({}, h2({}, 'Sign up'), div({}), EmailInput(), PasswordInput(), SubmitButton({
+    return div({}, h2({}, 'Sign up'), div({}), NameInput(this.props), PasswordInput(this.props), SubmitButton({
       onClick: App.Modules.Home.SignUp
     }, "Sign up"), SwitchFormLink({}, "Login Instead"));
   };
@@ -32929,7 +32960,7 @@ SignUpForm = (function(superClass) {
 module.exports = React.createFactory(SignUpForm);
 
 
-},{"./email_input":405,"./password_input":408,"./submit_button":410,"./switch_form_link":411}],410:[function(require,module,exports){
+},{"./name_input":408,"./password_input":409,"./submit_button":411,"./switch_form_link":412}],411:[function(require,module,exports){
 var SubmitButton, button,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -32957,7 +32988,7 @@ SubmitButton = (function(superClass) {
 module.exports = React.createFactory(SubmitButton);
 
 
-},{}],411:[function(require,module,exports){
+},{}],412:[function(require,module,exports){
 var SwitchForm, span,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -32985,7 +33016,7 @@ SwitchForm = (function(superClass) {
 module.exports = React.createFactory(SwitchForm);
 
 
-},{}],412:[function(require,module,exports){
+},{}],413:[function(require,module,exports){
 var HomeModule;
 
 HomeModule = {
@@ -32997,7 +33028,7 @@ HomeModule = {
 module.exports = HomeModule;
 
 
-},{"./actions":404,"./root_component":413,"./store":414}],413:[function(require,module,exports){
+},{"./actions":404,"./root_component":414,"./store":415}],414:[function(require,module,exports){
 var Home, RootComponent, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -33027,14 +33058,20 @@ RootComponent = (function(superClass) {
 module.exports = RootComponent;
 
 
-},{"./components/home":406}],414:[function(require,module,exports){
+},{"./components/home":406}],415:[function(require,module,exports){
 var HomeStore;
 
 HomeStore = Reflux.createStore({
   init: function() {
     this.user = {};
-    return this.display = {
+    this.display = {
       login: true
+    };
+    return this.form = {
+      errors: {
+        wrongPassword: false,
+        nameTaken: false
+      }
     };
   },
   registerListeners: function() {
@@ -33050,7 +33087,8 @@ HomeStore = Reflux.createStore({
   props: function() {
     return {
       display: this.display,
-      user: this.user
+      user: this.user,
+      form: this.form
     };
   },
   update: function() {
@@ -33061,7 +33099,7 @@ HomeStore = Reflux.createStore({
 module.exports = HomeStore;
 
 
-},{}],415:[function(require,module,exports){
+},{}],416:[function(require,module,exports){
 var Link, NavBar, div, li, ref, ul,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -33098,7 +33136,7 @@ NavBar = (function(superClass) {
 module.exports = React.createFactory(NavBar);
 
 
-},{}],416:[function(require,module,exports){
+},{}],417:[function(require,module,exports){
 var Layout, NavBar, div, li, ref, ul,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -33128,7 +33166,7 @@ Layout = (function(superClass) {
 module.exports = Layout;
 
 
-},{"./components/nav_bar":415}],417:[function(require,module,exports){
+},{"./components/nav_bar":416}],418:[function(require,module,exports){
 var LayoutModule;
 
 LayoutModule = {
@@ -33138,7 +33176,7 @@ LayoutModule = {
 module.exports = LayoutModule;
 
 
-},{"./layout":416}],418:[function(require,module,exports){
+},{"./layout":417}],419:[function(require,module,exports){
 var Lobby, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -33164,7 +33202,7 @@ Lobby = (function(superClass) {
 module.exports = Lobby;
 
 
-},{}],419:[function(require,module,exports){
+},{}],420:[function(require,module,exports){
 var LobbyModule;
 
 LobbyModule = {
@@ -33174,7 +33212,7 @@ LobbyModule = {
 module.exports = LobbyModule;
 
 
-},{"./lobby":418}],420:[function(require,module,exports){
+},{"./lobby":419}],421:[function(require,module,exports){
 var Modules;
 
 Modules = {
@@ -33187,7 +33225,7 @@ Modules = {
 module.exports = Modules;
 
 
-},{"./game/module":403,"./home/module":412,"./layout/module":417,"./lobby/module":419}],421:[function(require,module,exports){
+},{"./game/module":403,"./home/module":413,"./layout/module":418,"./lobby/module":420}],422:[function(require,module,exports){
 var defineMonkeyPatches;
 
 defineMonkeyPatches = function() {
@@ -33197,7 +33235,7 @@ defineMonkeyPatches = function() {
 module.exports = defineMonkeyPatches;
 
 
-},{}],422:[function(require,module,exports){
+},{}],423:[function(require,module,exports){
 var IndexRoute, Link, RootComponent, Route, Router, browserHistory,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
