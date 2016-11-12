@@ -2,6 +2,7 @@
 *.sublime-project
 *.sublime-workspace
 
+
 # backend
 
 # Ignore bundler config.
@@ -20,3 +21,9 @@ back_end/tmp/*
 # Ignore Byebug command history file.
 back_end/.byebug_history
 
+
+
+# frontend
+
+front_end/node_modules/
+front_end/tmp/
