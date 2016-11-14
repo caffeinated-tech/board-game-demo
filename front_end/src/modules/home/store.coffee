@@ -1,5 +1,5 @@
 
-HomeStore = Reflux.createStore
+HomeStore = App.Helpers.CreateStore
   init: ->
     @user = {}
     @display = 
@@ -15,6 +15,8 @@ HomeStore = Reflux.createStore
 
   registerListeners: ->
     @listenToMany App.Modules.Home.actions
+
+  # actions
   
   onSwitchForm: ->
     @display.login = !@display.login
@@ -39,7 +41,10 @@ HomeStore = Reflux.createStore
       name: @inputs.name.value
       password: @inputs.password.value
 
+  # api actions
+
   onApiSignUpCompleted: (res) ->
+    console.log 'onApiSignUpCompleted', res
     @user = res
     @update()
 
@@ -71,22 +76,16 @@ HomeStore = Reflux.createStore
         @form.errors.genericError = true      
     @update()
 
-  onRegisterComponents: (args) ->
-    for name, element of args
-      @inputs[name] = element
+  props: ->
+    user: @user
+    form: @form
+    display: @display
+
+  # various helper methods
 
   loadUser: (user) ->
     @user = user
     @update()
-
-  props: ->
-    display: @display
-    user: @user
-    form: @form
-
-  update: ->
-    @trigger @props
-
 
   _clearFormErrors: ->
     @form.errors = 

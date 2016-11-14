@@ -4,21 +4,21 @@ Link = React.createFactory ReactRouter.Link
 
 class NavBar extends React.Component
   render: ->
-    div { className: 'nav-bar' },
-      ul {},
-        li { className: 'logo' },
+    div { className: 'pure-menu pure-menu-horizontal' },
+      ul { className: 'pure-menu-list' },
+        li { className: 'pure-menu-heading logo' },
           'React-Check'
-        li {},
-          Link { to: '/' },
+        li { className: 'pure-menu-item' },
+          Link { to: '/' , className: 'pure-menu-link' },
             'Home'
-        li {},
-          Link { to: '/game' },
+        li { className: 'pure-menu-item' },
+          Link { to: '/game' , className: 'pure-menu-link' },
             'Game'
-        li {},
-          Link { to: '/lobby' },
+        li { className: 'pure-menu-item' },
+          Link { to: '/lobby' , className: 'pure-menu-link' },
             'Lobby'
-        li {},
-          a { href: '/logout'},
+        li { className: 'pure-menu-item' },
+          a { href: '/logout', className: 'pure-menu-link' },
             'Logout'
       
 module.exports = React.createFactory NavBar

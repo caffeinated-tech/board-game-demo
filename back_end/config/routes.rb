@@ -1,9 +1,10 @@
 Rails.application.routes.draw do
   # routes used by react router
   get '/', to: 'web_application#index'
-  get '/home', to: redirect('/')
-  get '/game', to: redirect('/')
-  get '/lobby', to: redirect('/')
+  get '/home', to: 'web_application#index'
+  get '/game', to: 'web_application#index'
+  get '/lobby/', to: 'web_application#index'
+  get '/lobby/create', to: 'web_application#index'
 
   get '/logout', to: 'web_application#logout'
 

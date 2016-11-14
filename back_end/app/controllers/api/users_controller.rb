@@ -11,7 +11,6 @@ module Api
   	end
 
     def login
-      puts request.headers['X-CSRF-Token']
       user = User.where(name: user_params[:name]).first
       raise WrongNameError.new if user.nil?
       raise WrongPasswordError.new unless user.password == user_params[:password]
@@ -36,9 +35,7 @@ module Api
     end
 
     def login_user(user)
-      puts "login user"
       session[:user_id] = user.id.to_s
-      ap session
     end
 
   end

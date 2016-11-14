@@ -23,6 +23,9 @@ class RootComponent extends React.Component
         Route 
           path: '/lobby'
           component: App.Modules.Lobby.component
+          Route
+            path: '/lobby/create'
+            component: App.Modules.Lobby.CreateGame.component 
 
 
 module.exports = RootComponent
