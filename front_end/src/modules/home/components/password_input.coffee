@@ -4,11 +4,13 @@ Error = require('./error')
 
 class PasswordInput extends React.Component
   render: ->
-    div {},
+    div { className: 'pure-control-group' },
       label {},
-        'Password'
+        'Password '
       input
         ref: 'password'
+        type: 'password'
+        placeholder: 'Password'
       if @props.form.errors.wrongPassword
         Error {},
           'Incorrect Password'

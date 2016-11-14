@@ -3,7 +3,7 @@
 class SwitchForm extends React.Component
   render: ->
     span 
-      className: 'link' 
+      className: 'pure-button' 
       onClick: App.Modules.Home.actions.switchForm
       ,
       @props.children

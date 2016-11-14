@@ -4,12 +4,13 @@ Error = require('./error')
 
 class NameInput extends React.Component
   render: ->
-    div {},
+    div { className: 'pure-control-group' },
       label {},
-        'User name: '
+        'User name '
       input 
         type: 'text'
         ref: 'name'
+        placeholder: 'Name'
       if @props.form.errors.nameTaken
         Error {},
           'This name is already taken'

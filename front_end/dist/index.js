@@ -38757,11 +38757,11 @@ module.exports = React.createFactory(Home);
 
 
 },{"./log_in_form":412,"./sign_up_form":415,"./welcome_screen":418}],412:[function(require,module,exports){
-var LogInForm, NameInput, PasswordInput, SubmitButton, SwitchFormLink, div, h2, ref,
+var LogInForm, NameInput, PasswordInput, SubmitButton, SwitchFormLink, div, fieldset, form, h2, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-ref = React.DOM, div = ref.div, h2 = ref.h2;
+ref = React.DOM, div = ref.div, h2 = ref.h2, form = ref.form, fieldset = ref.fieldset;
 
 NameInput = require('./name_input');
 
@@ -38779,9 +38779,13 @@ LogInForm = (function(superClass) {
   }
 
   LogInForm.prototype.render = function() {
-    return div({}, h2({}, 'Log In'), div({}), NameInput(this.props), PasswordInput(this.props), SubmitButton({
+    return div({}, h2({}, 'Log In'), form({
+      className: 'pure-form pure-form-aligned'
+    }, fieldset({}, NameInput(this.props), PasswordInput(this.props), div({
+      className: 'pure-controls'
+    }, SubmitButton({
       onClick: App.Modules.Home.actions.logIn
-    }, "Log in"), SwitchFormLink({}, "Signup Instead"));
+    }, "Log in"), SwitchFormLink({}, "Signup Instead")))));
   };
 
   return LogInForm;
@@ -38808,9 +38812,12 @@ NameInput = (function(superClass) {
   }
 
   NameInput.prototype.render = function() {
-    return div({}, label({}, 'User name: '), input({
+    return div({
+      className: 'pure-control-group'
+    }, label({}, 'User name '), input({
       type: 'text',
-      ref: 'name'
+      ref: 'name',
+      placeholder: 'Name'
     }), this.props.form.errors.nameTaken ? Error({}, 'This name is already taken') : void 0, this.props.form.errors.nameMissing ? Error({}, 'Please enter a name') : void 0, this.props.form.errors.wrongName ? Error({}, 'This name doesn\'t exist') : void 0);
   };
 
@@ -38844,8 +38851,12 @@ PasswordInput = (function(superClass) {
   }
 
   PasswordInput.prototype.render = function() {
-    return div({}, label({}, 'Password'), input({
-      ref: 'password'
+    return div({
+      className: 'pure-control-group'
+    }, label({}, 'Password '), input({
+      ref: 'password',
+      type: 'password',
+      placeholder: 'Password'
     }), this.props.form.errors.wrongPassword ? Error({}, 'Incorrect Password') : void 0, this.props.form.errors.passwordMissing ? Error({}, 'Please enter a password') : void 0);
   };
 
@@ -38863,11 +38874,11 @@ module.exports = React.createFactory(PasswordInput);
 
 
 },{"./error":410}],415:[function(require,module,exports){
-var NameInput, PasswordInput, SignUpForm, SubmitButton, SwitchFormLink, div, h2, ref,
+var NameInput, PasswordInput, SignUpForm, SubmitButton, SwitchFormLink, div, fieldset, form, h2, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-ref = React.DOM, div = ref.div, h2 = ref.h2;
+ref = React.DOM, div = ref.div, h2 = ref.h2, form = ref.form, fieldset = ref.fieldset;
 
 NameInput = require('./name_input');
 
@@ -38885,9 +38896,13 @@ SignUpForm = (function(superClass) {
   }
 
   SignUpForm.prototype.render = function() {
-    return div({}, h2({}, 'Sign up'), div({}), NameInput(this.props), PasswordInput(this.props), SubmitButton({
+    return div({}, h2({}, 'Sign up'), form({
+      className: 'pure-form pure-form-aligned'
+    }, fieldset({}, NameInput(this.props), PasswordInput(this.props), div({
+      className: 'pure-controls'
+    }, SubmitButton({
       onClick: App.Modules.Home.actions.signUp
-    }, "Sign up"), SwitchFormLink({}, "Login Instead"));
+    }, "Sign up"), SwitchFormLink({}, "Login Instead")))));
   };
 
   return SignUpForm;
@@ -38898,24 +38913,32 @@ module.exports = React.createFactory(SignUpForm);
 
 
 },{"./name_input":413,"./password_input":414,"./submit_button":416,"./switch_form_link":417}],416:[function(require,module,exports){
-var SubmitButton, button,
+var SubmitButton, a,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-button = React.DOM.button;
+a = React.DOM.a;
 
 SubmitButton = (function(superClass) {
   extend(SubmitButton, superClass);
 
   function SubmitButton() {
+    this.onClick = bind(this.onClick, this);
     return SubmitButton.__super__.constructor.apply(this, arguments);
   }
 
   SubmitButton.prototype.render = function() {
-    return button({
-      className: 'submit',
-      onClick: this.props.onClick
+    return a({
+      className: 'pure-button pure-button-primary',
+      onClick: this.onClick
     }, this.props.children);
+  };
+
+  SubmitButton.prototype.onClick = function() {
+    this.props.onClick();
+    console.log('clicked');
+    return false;
   };
 
   return SubmitButton;
@@ -38941,7 +38964,7 @@ SwitchForm = (function(superClass) {
 
   SwitchForm.prototype.render = function() {
     return span({
-      className: 'link',
+      className: 'pure-button',
       onClick: App.Modules.Home.actions.switchForm
     }, this.props.children);
   };
@@ -39042,6 +39065,7 @@ HomeStore = App.Helpers.CreateStore({
     return this.listenToMany(App.Modules.Home.actions);
   },
   onSwitchForm: function() {
+    this._clearFormErrors();
     this.display.login = !this.display.login;
     return this.update();
   },

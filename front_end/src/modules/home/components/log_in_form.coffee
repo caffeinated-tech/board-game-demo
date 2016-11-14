@@ -1,4 +1,4 @@
-{ div, h2 } = React.DOM
+{ div, h2, form, fieldset } = React.DOM
 
 NameInput = require('./name_input')
 PasswordInput = require('./password_input')
@@ -10,14 +10,16 @@ class LogInForm extends React.Component
     div {},
       h2 {},
         'Log In'
-      div {}
-        NameInput @props
-        PasswordInput @props
-        SubmitButton
-          onClick: App.Modules.Home.actions.logIn
-          ,
-          "Log in"
-        SwitchFormLink {},
-          "Signup Instead"  
+      form { className: 'pure-form pure-form-aligned' },
+        fieldset {},
+          NameInput @props
+          PasswordInput @props
+          div { className: 'pure-controls' },
+            SubmitButton
+              onClick: App.Modules.Home.actions.logIn
+              ,
+              "Log in"
+            SwitchFormLink {},
+              "Signup Instead"  
         
 module.exports = React.createFactory LogInForm

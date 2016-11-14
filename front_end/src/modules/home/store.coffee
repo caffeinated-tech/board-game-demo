@@ -19,6 +19,7 @@ HomeStore = App.Helpers.CreateStore
   # actions
   
   onSwitchForm: ->
+    @_clearFormErrors()
     @display.login = !@display.login
     @update()
 

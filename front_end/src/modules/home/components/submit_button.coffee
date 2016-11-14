@@ -1,10 +1,15 @@
-{ button } = React.DOM 
+{ a } = React.DOM 
 
 class SubmitButton extends React.Component
   render: ->
-    button 
-      className: 'submit'
-      onClick: @props.onClick
+    a
+      className: 'pure-button pure-button-primary'
+      onClick: @onClick
       @props.children
+
+  onClick: =>
+    @props.onClick()
+    console.log 'clicked'
+    false
         
 module.exports = React.createFactory SubmitButton
