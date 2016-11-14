@@ -11305,7 +11305,7 @@ var readState = exports.readState = function readState(key) {
   return undefined;
 };
 }).call(this,require('_process'))
-},{"_process":154,"warning":398}],138:[function(require,module,exports){
+},{"_process":154,"warning":399}],138:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11490,7 +11490,7 @@ var replaceLocation = exports.replaceLocation = function replaceLocation(locatio
   });
 };
 }).call(this,require('_process'))
-},{"./BrowserProtocol":136,"./DOMStateStorage":137,"./DOMUtils":138,"./LocationUtils":141,"./PathUtils":142,"_process":154,"warning":398}],141:[function(require,module,exports){
+},{"./BrowserProtocol":136,"./DOMStateStorage":137,"./DOMUtils":138,"./LocationUtils":141,"./PathUtils":142,"_process":154,"warning":399}],141:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -11585,7 +11585,7 @@ var locationsAreEqual = exports.locationsAreEqual = function locationsAreEqual(a
   a.pathname === b.pathname && a.search === b.search && a.hash === b.hash && statesAreEqual(a.state, b.state);
 };
 }).call(this,require('_process'))
-},{"./Actions":134,"./PathUtils":142,"_process":154,"invariant":152,"warning":398}],142:[function(require,module,exports){
+},{"./Actions":134,"./PathUtils":142,"_process":154,"invariant":152,"warning":399}],142:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -11689,7 +11689,7 @@ var createPath = exports.createPath = function createPath(location) {
   return path;
 };
 }).call(this,require('_process'))
-},{"_process":154,"warning":398}],143:[function(require,module,exports){
+},{"_process":154,"warning":399}],143:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11973,7 +11973,7 @@ var createHashHistory = function createHashHistory() {
 
 exports.default = createHashHistory;
 }).call(this,require('_process'))
-},{"./DOMUtils":138,"./ExecutionEnvironment":139,"./HashProtocol":140,"./createHistory":146,"_process":154,"invariant":152,"warning":398}],146:[function(require,module,exports){
+},{"./DOMUtils":138,"./ExecutionEnvironment":139,"./HashProtocol":140,"./createHistory":146,"_process":154,"invariant":152,"warning":399}],146:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -12293,7 +12293,7 @@ var createMemoryHistory = function createMemoryHistory() {
 
 exports.default = createMemoryHistory;
 }).call(this,require('_process'))
-},{"./Actions":134,"./LocationUtils":141,"./PathUtils":142,"./createHistory":146,"_process":154,"invariant":152,"warning":398}],148:[function(require,module,exports){
+},{"./Actions":134,"./LocationUtils":141,"./PathUtils":142,"./createHistory":146,"_process":154,"invariant":152,"warning":399}],148:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -12319,7 +12319,7 @@ var runTransitionHook = function runTransitionHook(hook, location, callback) {
 
 exports.default = runTransitionHook;
 }).call(this,require('_process'))
-},{"_process":154,"warning":398}],149:[function(require,module,exports){
+},{"_process":154,"warning":399}],149:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -13025,7 +13025,7 @@ exports.stringify = function (obj, opts) {
 	}).join('&') : '';
 };
 
-},{"object-assign":153,"strict-uri-encode":394}],156:[function(require,module,exports){
+},{"object-assign":153,"strict-uri-encode":395}],156:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -17370,7 +17370,7 @@ function routerWarning(falseToWarn, message) {
 function _resetWarned() {
   warned = {};
 }
-},{"warning":398}],220:[function(require,module,exports){
+},{"warning":399}],220:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -37026,7 +37026,7 @@ function createStore(reducer, preloadedState, enhancer) {
     replaceReducer: replaceReducer
   }, _ref2[_symbolObservable2['default']] = observable, _ref2;
 }
-},{"lodash/isPlainObject":375,"symbol-observable":395}],366:[function(require,module,exports){
+},{"lodash/isPlainObject":375,"symbol-observable":396}],366:[function(require,module,exports){
 arguments[4][32][0].apply(exports,arguments)
 },{"./_root":373,"dup":32}],367:[function(require,module,exports){
 arguments[4][43][0].apply(exports,arguments)
@@ -37931,6 +37931,154 @@ function throwIf(val, msg) {
     }
 }
 },{"eventemitter3":108}],388:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function createFunctions(Reflux, PromiseFactory) {
+
+    var _ = Reflux.utils;
+
+    /**
+     * Returns a Promise for the triggered action
+     *
+     * @return {Promise}
+     *   Resolved by completed child action.
+     *   Rejected by failed child action.
+     *   If listenAndPromise'd, then promise associated to this trigger.
+     *   Otherwise, the promise is for next child action completion.
+     */
+    function triggerPromise() {
+        var me = this;
+        var args = arguments;
+
+        var canHandlePromise = this.children.indexOf("completed") >= 0 && this.children.indexOf("failed") >= 0;
+
+        var createdPromise = new PromiseFactory(function (resolve, reject) {
+            // If `listenAndPromise` is listening
+            // patch `promise` w/ context-loaded resolve/reject
+            if (me.willCallPromise) {
+                _.nextTick(function () {
+                    var previousPromise = me.promise;
+                    me.promise = function (inputPromise) {
+                        inputPromise.then(resolve, reject);
+                        // Back to your regularly schedule programming.
+                        me.promise = previousPromise;
+                        return me.promise.apply(me, arguments);
+                    };
+                    me.trigger.apply(me, args);
+                });
+                return;
+            }
+
+            if (canHandlePromise) {
+                var removeSuccess = me.completed.listen(function () {
+                    var args = Array.prototype.slice.call(arguments);
+                    removeSuccess();
+                    removeFailed();
+                    resolve(args.length > 1 ? args : args[0]);
+                });
+
+                var removeFailed = me.failed.listen(function () {
+                    var args = Array.prototype.slice.call(arguments);
+                    removeSuccess();
+                    removeFailed();
+                    reject(args.length > 1 ? args : args[0]);
+                });
+            }
+
+            me.trigger.apply(me, args);
+
+            if (!canHandlePromise) {
+                resolve();
+            }
+        });
+
+        // Ensure that the promise does trigger "Uncaught (in promise)" errors in console if no error handler is added
+        // See: https://github.com/reflux/reflux-promise/issues/4
+        createdPromise["catch"](function () {});
+
+        return createdPromise;
+    }
+
+    /**
+     * Attach handlers to promise that trigger the completed and failed
+     * child publishers, if available.
+     *
+     * @param {Object} p The promise to attach to
+     */
+    function promise(p) {
+        var me = this;
+
+        var canHandlePromise = this.children.indexOf("completed") >= 0 && this.children.indexOf("failed") >= 0;
+
+        if (!canHandlePromise) {
+            throw new Error("Publisher must have \"completed\" and \"failed\" child publishers");
+        }
+
+        p.then(function (response) {
+            return me.completed(response);
+        }, function (error) {
+            return me.failed(error);
+        });
+    }
+
+    /**
+     * Subscribes the given callback for action triggered, which should
+     * return a promise that in turn is passed to `this.promise`
+     *
+     * @param {Function} callback The callback to register as event handler
+     */
+    function listenAndPromise(callback, bindContext) {
+        var me = this;
+        bindContext = bindContext || this;
+        this.willCallPromise = (this.willCallPromise || 0) + 1;
+
+        var removeListen = this.listen(function () {
+
+            if (!callback) {
+                throw new Error("Expected a function returning a promise but got " + callback);
+            }
+
+            var args = arguments,
+                returnedPromise = callback.apply(bindContext, args);
+            return me.promise.call(me, returnedPromise);
+        }, bindContext);
+
+        return function () {
+            me.willCallPromise--;
+            removeListen.call(me);
+        };
+    }
+
+    return {
+        triggerPromise: triggerPromise,
+        promise: promise,
+        listenAndPromise: listenAndPromise
+    };
+}
+
+/**
+ * Sets up reflux with Promise functionality
+ */
+
+exports["default"] = function (promiseFactory) {
+    return function (Reflux) {
+        var _createFunctions = createFunctions(Reflux, promiseFactory);
+
+        var triggerPromise = _createFunctions.triggerPromise;
+        var promise = _createFunctions.promise;
+        var listenAndPromise = _createFunctions.listenAndPromise;
+
+        Reflux.PublisherMethods.triggerAsync = triggerPromise;
+        Reflux.PublisherMethods.promise = promise;
+        Reflux.PublisherMethods.listenAndPromise = listenAndPromise;
+    };
+};
+
+module.exports = exports["default"];
+},{}],389:[function(require,module,exports){
 var _ = require('reflux-core/lib/utils'),
     ListenerMethods = require('reflux-core/lib/ListenerMethods');
 
@@ -37949,7 +38097,7 @@ module.exports = _.extend({
 
 }, ListenerMethods);
 
-},{"reflux-core/lib/ListenerMethods":378,"reflux-core/lib/utils":387}],389:[function(require,module,exports){
+},{"reflux-core/lib/ListenerMethods":378,"reflux-core/lib/utils":387}],390:[function(require,module,exports){
 var ListenerMethods = require('reflux-core/lib/ListenerMethods'),
     ListenerMixin = require('./ListenerMixin'),
     _ = require('reflux-core/lib/utils');
@@ -37979,7 +38127,7 @@ module.exports = function(listenable, key) {
     };
 };
 
-},{"./ListenerMixin":388,"reflux-core/lib/ListenerMethods":378,"reflux-core/lib/utils":387}],390:[function(require,module,exports){
+},{"./ListenerMixin":389,"reflux-core/lib/ListenerMethods":378,"reflux-core/lib/utils":387}],391:[function(require,module,exports){
 var ListenerMethods = require('reflux-core/lib/ListenerMethods'),
     ListenerMixin = require('./ListenerMixin'),
     _ = require('reflux-core/lib/utils');
@@ -38016,7 +38164,7 @@ module.exports = function(listenable, key, filterFunc) {
     };
 };
 
-},{"./ListenerMixin":388,"reflux-core/lib/ListenerMethods":378,"reflux-core/lib/utils":387}],391:[function(require,module,exports){
+},{"./ListenerMixin":389,"reflux-core/lib/ListenerMethods":378,"reflux-core/lib/utils":387}],392:[function(require,module,exports){
 var Reflux = require('reflux-core');
 
 Reflux.connect = require('./connect');
@@ -38031,7 +38179,7 @@ Reflux.listenToMany = require('./listenToMany');
 
 module.exports = Reflux;
 
-},{"./ListenerMixin":388,"./connect":389,"./connectFilter":390,"./listenTo":392,"./listenToMany":393,"reflux-core":384}],392:[function(require,module,exports){
+},{"./ListenerMixin":389,"./connect":390,"./connectFilter":391,"./listenTo":393,"./listenToMany":394,"reflux-core":384}],393:[function(require,module,exports){
 var ListenerMethods = require('reflux-core/lib/ListenerMethods');
 
 /**
@@ -38068,7 +38216,7 @@ module.exports = function(listenable,callback,initial){
     };
 };
 
-},{"reflux-core/lib/ListenerMethods":378}],393:[function(require,module,exports){
+},{"reflux-core/lib/ListenerMethods":378}],394:[function(require,module,exports){
 var ListenerMethods = require('reflux-core/lib/ListenerMethods');
 
 /**
@@ -38103,7 +38251,7 @@ module.exports = function(listenables){
     };
 };
 
-},{"reflux-core/lib/ListenerMethods":378}],394:[function(require,module,exports){
+},{"reflux-core/lib/ListenerMethods":378}],395:[function(require,module,exports){
 'use strict';
 module.exports = function (str) {
 	return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
@@ -38111,10 +38259,10 @@ module.exports = function (str) {
 	});
 };
 
-},{}],395:[function(require,module,exports){
+},{}],396:[function(require,module,exports){
 module.exports = require('./lib/index');
 
-},{"./lib/index":396}],396:[function(require,module,exports){
+},{"./lib/index":397}],397:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -38146,7 +38294,7 @@ if (typeof self !== 'undefined') {
 var result = (0, _ponyfill2['default'])(root);
 exports['default'] = result;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ponyfill":397}],397:[function(require,module,exports){
+},{"./ponyfill":398}],398:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38170,7 +38318,7 @@ function symbolObservablePonyfill(root) {
 
 	return result;
 };
-},{}],398:[function(require,module,exports){
+},{}],399:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -38234,7 +38382,7 @@ if (process.env.NODE_ENV !== 'production') {
 module.exports = warning;
 
 }).call(this,require('_process'))
-},{"_process":154}],399:[function(require,module,exports){
+},{"_process":154}],400:[function(require,module,exports){
 var Api;
 
 Api = {
@@ -38245,18 +38393,17 @@ Api = {
       xhr.open(method, args.url);
       xhr.onload = function() {
         var ref;
-        if ((200 <= (ref = this.status) && ref < 300)) {
-          return resolve(xhr.response);
+        if ((200 <= (ref = xhr.status) && ref < 300)) {
+          return resolve(JSON.parse(xhr.response));
         } else {
-          return reject(xhr.response);
+          return reject(JSON.parse(xhr.response));
         }
       };
       xhr.onerror = function() {
-        return reject(xhr.response);
+        return reject(JSON.parse(xhr.response));
       };
       xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-      xhr.setRequestHeader('X-CSRF-Token', App.Helpers.Cookies.read('csrf'));
-      console.log(App.Helpers.Cookies.read('csrf'));
+      xhr.setRequestHeader('X-CSRF-Token', App.Helpers.Cookies.read('CSRF-TOKEN'));
       ref = args.headers;
       for (header in ref) {
         value = ref[header];
@@ -38270,6 +38417,7 @@ Api = {
     });
   },
   POST: function(args) {
+    console.log('post');
     return this.request('POST', args);
   },
   GET: function(args) {
@@ -38286,7 +38434,7 @@ Api = {
 module.exports = Api;
 
 
-},{}],400:[function(require,module,exports){
+},{}],401:[function(require,module,exports){
 var ConntectStore,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -38320,22 +38468,23 @@ ConntectStore = (function(superClass) {
 module.exports = ConntectStore;
 
 
-},{}],401:[function(require,module,exports){
+},{}],402:[function(require,module,exports){
 var Cookies;
 
 Cookies = {
   read: function(name) {
-    return document.cookie.split(name + "=")[1].split(';')[0];
+    var ref, ref1, ref2, ref3;
+    return (ref = document.cookie) != null ? (ref1 = ref.split(name + "=")) != null ? (ref2 = ref1[1]) != null ? typeof ref2.split === "function" ? (ref3 = ref2.split(';')) != null ? ref3[0] : void 0 : void 0 : void 0 : void 0 : void 0;
   },
   write: function(name, value) {
-    return document.cookie = name + ":" + value;
+    return document.cookie = name + "=" + value;
   }
 };
 
 module.exports = Cookies;
 
 
-},{}],402:[function(require,module,exports){
+},{}],403:[function(require,module,exports){
 var Helpers;
 
 Helpers = {
@@ -38347,7 +38496,7 @@ Helpers = {
 module.exports = Helpers;
 
 
-},{"./api":399,"./connect_store":400,"./cookies":401}],403:[function(require,module,exports){
+},{"./api":400,"./connect_store":401,"./cookies":402}],404:[function(require,module,exports){
 console.log('hello world');
 
 window.React = require('react');
@@ -38358,9 +38507,15 @@ window.ReactRouter = require('react-router');
 
 window.Reflux = require('reflux');
 
-window.Promise = require('bluebird');
+window.RefluxPromise = require('reflux-promise');
+
+window.Bluebird = require('bluebird');
+
+window.Promise = window.Bluebird;
 
 window.ReactDnD = require('react-dnd');
+
+Reflux.use(RefluxPromise(window.Bluebird));
 
 require('./monkey_patches')();
 
@@ -38374,12 +38529,12 @@ window.App.Initializer = require('./initializer');
 
 window.App.Initializer.connectStores();
 
+window.App.Initializer.populateStores();
+
 window.App.Initializer.mount();
 
-window.App.Initializer.loadCSRF();
 
-
-},{"./helpers/helper":402,"./initializer":404,"./modules/module":424,"./monkey_patches":425,"bluebird":3,"react":364,"react-dnd":168,"react-dom":188,"react-router":215,"reflux":391}],404:[function(require,module,exports){
+},{"./helpers/helper":403,"./initializer":405,"./modules/module":426,"./monkey_patches":427,"bluebird":3,"react":364,"react-dnd":168,"react-dom":188,"react-router":215,"reflux":392,"reflux-promise":388}],405:[function(require,module,exports){
 var Initializer, SELECTOR, component;
 
 SELECTOR = '#react';
@@ -38396,18 +38551,17 @@ Initializer = {
   unmount: function() {
     return unmountComponentAtNode(document.querySelector(SELECTOR));
   },
-  loadCSRF: function() {
-    var token;
-    token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    App.Helpers.Cookies.write('csrf', token);
-    return console.log("csrf=" + token);
+  populateStores: function() {
+    if (gon.user != null) {
+      return App.Modules.Home.store.loadUser(gon.user);
+    }
   }
 };
 
 module.exports = Initializer;
 
 
-},{"./root_component":426}],405:[function(require,module,exports){
+},{"./root_component":428}],406:[function(require,module,exports){
 var Game, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -38433,7 +38587,7 @@ Game = (function(superClass) {
 module.exports = Game;
 
 
-},{}],406:[function(require,module,exports){
+},{}],407:[function(require,module,exports){
 var GameModule;
 
 GameModule = {
@@ -38443,7 +38597,7 @@ GameModule = {
 module.exports = GameModule;
 
 
-},{"./game":405}],407:[function(require,module,exports){
+},{"./game":406}],408:[function(require,module,exports){
 var HomeActions;
 
 HomeActions = Reflux.createActions({
@@ -38452,16 +38606,26 @@ HomeActions = Reflux.createActions({
   switchForm: {},
   registerComponents: {},
   apiSignUp: {
-    async: true
+    asyncResult: true
   },
   apiLogIn: {
-    async: true
+    asyncResult: true
   }
 });
 
-HomeActions.apiSignUp.listen(function(args) {
+HomeActions.apiSignUp.listenAndPromise(function(args) {
   return App.Helpers.Api.POST({
     url: 'api/users',
+    data: {
+      user: args
+    }
+  });
+});
+
+HomeActions.apiLogIn.listenAndPromise(function(args) {
+  console.log('apiLogIn');
+  return App.Helpers.Api.POST({
+    url: 'api/users/login',
     data: {
       user: args
     }
@@ -38471,7 +38635,7 @@ HomeActions.apiSignUp.listen(function(args) {
 module.exports = HomeActions;
 
 
-},{}],408:[function(require,module,exports){
+},{}],409:[function(require,module,exports){
 var Error, span,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -38498,8 +38662,8 @@ Error = (function(superClass) {
 module.exports = React.createFactory(Error);
 
 
-},{}],409:[function(require,module,exports){
-var Home, LogInForm, SignUpForm, div, h1, ref,
+},{}],410:[function(require,module,exports){
+var Home, LogInForm, SignUpForm, WelcomeScreen, div, h1, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -38509,6 +38673,8 @@ LogInForm = require('./log_in_form');
 
 SignUpForm = require('./sign_up_form');
 
+WelcomeScreen = require('./welcome_screen');
+
 Home = (function(superClass) {
   extend(Home, superClass);
 
@@ -38517,8 +38683,8 @@ Home = (function(superClass) {
   }
 
   Home.prototype.render = function() {
-    console.log('render the Home', this.props);
-    return div({}, h1({}, 'Welcome to the React Board Game Demo'), div({}), this.props.display.login ? LogInForm(this.props) : SignUpForm(this.props));
+    var ref1;
+    return div({}, h1({}, 'Welcome to the React Board Game Demo'), div({}), ((ref1 = this.props.user) != null ? ref1.id : void 0) != null ? WelcomeScreen(this.props) : this.props.display.login ? LogInForm(this.props) : SignUpForm(this.props));
   };
 
   return Home;
@@ -38528,7 +38694,7 @@ Home = (function(superClass) {
 module.exports = React.createFactory(Home);
 
 
-},{"./log_in_form":410,"./sign_up_form":413}],410:[function(require,module,exports){
+},{"./log_in_form":411,"./sign_up_form":414,"./welcome_screen":417}],411:[function(require,module,exports){
 var LogInForm, NameInput, PasswordInput, SubmitButton, SwitchFormLink, div, h2, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -38552,7 +38718,7 @@ LogInForm = (function(superClass) {
 
   LogInForm.prototype.render = function() {
     return div({}, h2({}, 'Log In'), div({}), NameInput(this.props), PasswordInput(this.props), SubmitButton({
-      onClick: App.Modules.Home.actions.signUp
+      onClick: App.Modules.Home.actions.logIn
     }, "Log in"), SwitchFormLink({}, "Signup Instead"));
   };
 
@@ -38563,7 +38729,7 @@ LogInForm = (function(superClass) {
 module.exports = React.createFactory(LogInForm);
 
 
-},{"./name_input":411,"./password_input":412,"./submit_button":414,"./switch_form_link":415}],411:[function(require,module,exports){
+},{"./name_input":412,"./password_input":413,"./submit_button":415,"./switch_form_link":416}],412:[function(require,module,exports){
 var Error, NameInput, div, input, label, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -38583,7 +38749,7 @@ NameInput = (function(superClass) {
     return div({}, label({}, 'User name: '), input({
       type: 'text',
       ref: 'name'
-    }), this.props.form.errors.nameTaken ? Error({}, 'This name is already taken') : void 0);
+    }), this.props.form.errors.nameTaken ? Error({}, 'This name is already taken') : void 0, this.props.form.errors.nameMissing ? Error({}, 'Please enter a name') : void 0, this.props.form.errors.wrongName ? Error({}, 'This name doesn\'t exist') : void 0);
   };
 
   NameInput.prototype.componentDidMount = function() {
@@ -38599,7 +38765,7 @@ NameInput = (function(superClass) {
 module.exports = React.createFactory(NameInput);
 
 
-},{"./error":408}],412:[function(require,module,exports){
+},{"./error":409}],413:[function(require,module,exports){
 var Error, PasswordInput, div, input, label, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -38618,7 +38784,7 @@ PasswordInput = (function(superClass) {
   PasswordInput.prototype.render = function() {
     return div({}, label({}, 'Password'), input({
       ref: 'password'
-    }), this.props.form.errors.wrongPassword ? Error({}, 'Incorrect Password ') : void 0);
+    }), this.props.form.errors.wrongPassword ? Error({}, 'Incorrect Password') : void 0, this.props.form.errors.passwordMissing ? Error({}, 'Please enter a password') : void 0);
   };
 
   PasswordInput.prototype.componentDidMount = function() {
@@ -38634,7 +38800,7 @@ PasswordInput = (function(superClass) {
 module.exports = React.createFactory(PasswordInput);
 
 
-},{"./error":408}],413:[function(require,module,exports){
+},{"./error":409}],414:[function(require,module,exports){
 var NameInput, PasswordInput, SignUpForm, SubmitButton, SwitchFormLink, div, h2, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -38669,7 +38835,7 @@ SignUpForm = (function(superClass) {
 module.exports = React.createFactory(SignUpForm);
 
 
-},{"./name_input":411,"./password_input":412,"./submit_button":414,"./switch_form_link":415}],414:[function(require,module,exports){
+},{"./name_input":412,"./password_input":413,"./submit_button":415,"./switch_form_link":416}],415:[function(require,module,exports){
 var SubmitButton, button,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -38697,7 +38863,7 @@ SubmitButton = (function(superClass) {
 module.exports = React.createFactory(SubmitButton);
 
 
-},{}],415:[function(require,module,exports){
+},{}],416:[function(require,module,exports){
 var SwitchForm, span,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -38725,7 +38891,32 @@ SwitchForm = (function(superClass) {
 module.exports = React.createFactory(SwitchForm);
 
 
-},{}],416:[function(require,module,exports){
+},{}],417:[function(require,module,exports){
+var WelcomeScreen, div, h2, ref,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ref = React.DOM, div = ref.div, h2 = ref.h2;
+
+WelcomeScreen = (function(superClass) {
+  extend(WelcomeScreen, superClass);
+
+  function WelcomeScreen() {
+    return WelcomeScreen.__super__.constructor.apply(this, arguments);
+  }
+
+  WelcomeScreen.prototype.render = function() {
+    return div({}, h2({}, "Welcome back " + this.props.user.name), div({}), "These are the things you should do...");
+  };
+
+  return WelcomeScreen;
+
+})(React.Component);
+
+module.exports = React.createFactory(WelcomeScreen);
+
+
+},{}],418:[function(require,module,exports){
 var HomeModule;
 
 HomeModule = {
@@ -38737,7 +38928,7 @@ HomeModule = {
 module.exports = HomeModule;
 
 
-},{"./actions":407,"./root_component":417,"./store":418}],417:[function(require,module,exports){
+},{"./actions":408,"./root_component":419,"./store":420}],419:[function(require,module,exports){
 var Home, RootComponent, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -38750,13 +38941,11 @@ RootComponent = (function(superClass) {
   extend(RootComponent, superClass);
 
   function RootComponent(props) {
-    console.log("CreateHome RootComponent");
     this.store = App.Modules.Home.store;
     RootComponent.__super__.constructor.call(this, props);
   }
 
   RootComponent.prototype.render = function() {
-    console.log('render the RootComponent contianter');
     return div({}, Home(this.state));
   };
 
@@ -38767,7 +38956,7 @@ RootComponent = (function(superClass) {
 module.exports = RootComponent;
 
 
-},{"./components/home":409}],418:[function(require,module,exports){
+},{"./components/home":410}],420:[function(require,module,exports){
 var HomeStore;
 
 HomeStore = Reflux.createStore({
@@ -38779,6 +38968,9 @@ HomeStore = Reflux.createStore({
     this.form = {
       errors: {
         wrongPassword: false,
+        wrongName: false,
+        nameMissing: false,
+        passwordMissing: false,
         nameTaken: false
       }
     };
@@ -38792,17 +38984,71 @@ HomeStore = Reflux.createStore({
     return this.update();
   },
   onSignUp: function() {
-    console.log('onSignUp validate first');
+    this._clearFormErrors();
+    this._validateForm();
+    this.update();
+    if (this._anyErrors()) {
+      return;
+    }
     return App.Modules.Home.actions.apiSignUp({
       name: this.inputs.name.value,
       password: this.inputs.password.value
     });
   },
+  onLogIn: function() {
+    this._clearFormErrors();
+    this._validateForm();
+    this.update();
+    if (this._anyErrors()) {
+      return;
+    }
+    return App.Modules.Home.actions.apiLogIn({
+      name: this.inputs.name.value,
+      password: this.inputs.password.value
+    });
+  },
   onApiSignUpCompleted: function(res) {
-    return console.log('c', res);
+    this.user = res;
+    return this.update();
   },
   onApiSignUpFailed: function(res) {
-    return console.log('f', res);
+    switch (res.name) {
+      case 'MissingParamError':
+        switch (res.field) {
+          case 'name':
+            this.form.errors.nameMissing = true;
+            break;
+          case 'password':
+            this.form.errors.passwordMissing = true;
+            break;
+          default:
+            this.form.errors.genericError = true;
+        }
+        break;
+      case 'NameTakenError':
+        this.form.errors.nameTaken = true;
+        break;
+      default:
+        this.form.errors.genericError = true;
+    }
+    return this.update();
+  },
+  onApiLogInCompleted: function(res) {
+    this.user = res;
+    return this.update();
+  },
+  onApiLogInFailed: function(res) {
+    switch (res.name) {
+      case 'WrongPasswordError':
+        this.form.errors.wrongPassword = true;
+        break;
+      case 'WrongNameError':
+        this.form.errors.wrongName = true;
+        break;
+      default:
+        this.form.errors.genericError = true;
+    }
+    return this.update();
   },
   onRegisterComponents: function(args) {
     var element, name, results;
@@ -38813,7 +39059,8 @@ HomeStore = Reflux.createStore({
     }
     return results;
   },
-  loadData: function(data) {
+  loadUser: function(user) {
+    this.user = user;
     return this.update();
   },
   props: function() {
@@ -38825,18 +39072,41 @@ HomeStore = Reflux.createStore({
   },
   update: function() {
     return this.trigger(this.props);
+  },
+  _clearFormErrors: function() {
+    return this.form.errors = {
+      wrongPassword: false,
+      wrongName: false,
+      nameMissing: false,
+      passwordMissing: false,
+      nameTaken: false
+    };
+  },
+  _validateForm: function() {
+    this.form.errors.passwordMissing = this.inputs.password.value.length < 1;
+    return this.form.errors.nameMissing = this.inputs.name.value.length < 1;
+  },
+  _anyErrors: function() {
+    var error, name, ref;
+    ref = this.form.errors;
+    for (name in ref) {
+      error = ref[name];
+      if (error) {
+        return true;
+      }
+    }
   }
 });
 
 module.exports = HomeStore;
 
 
-},{}],419:[function(require,module,exports){
-var Link, NavBar, div, li, ref, ul,
+},{}],421:[function(require,module,exports){
+var Link, NavBar, a, div, li, ref, ul,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-ref = React.DOM, div = ref.div, ul = ref.ul, li = ref.li;
+ref = React.DOM, div = ref.div, ul = ref.ul, li = ref.li, a = ref.a;
 
 Link = React.createFactory(ReactRouter.Link);
 
@@ -38858,7 +39128,9 @@ NavBar = (function(superClass) {
       to: '/game'
     }, 'Game')), li({}, Link({
       to: '/lobby'
-    }, 'Lobby'))));
+    }, 'Lobby')), li({}, a({
+      href: '/logout'
+    }, 'Logout'))));
   };
 
   return NavBar;
@@ -38868,7 +39140,7 @@ NavBar = (function(superClass) {
 module.exports = React.createFactory(NavBar);
 
 
-},{}],420:[function(require,module,exports){
+},{}],422:[function(require,module,exports){
 var Layout, NavBar, div, li, ref, ul,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -38898,7 +39170,7 @@ Layout = (function(superClass) {
 module.exports = Layout;
 
 
-},{"./components/nav_bar":419}],421:[function(require,module,exports){
+},{"./components/nav_bar":421}],423:[function(require,module,exports){
 var LayoutModule;
 
 LayoutModule = {
@@ -38908,7 +39180,7 @@ LayoutModule = {
 module.exports = LayoutModule;
 
 
-},{"./layout":420}],422:[function(require,module,exports){
+},{"./layout":422}],424:[function(require,module,exports){
 var Lobby, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -38934,7 +39206,7 @@ Lobby = (function(superClass) {
 module.exports = Lobby;
 
 
-},{}],423:[function(require,module,exports){
+},{}],425:[function(require,module,exports){
 var LobbyModule;
 
 LobbyModule = {
@@ -38944,7 +39216,7 @@ LobbyModule = {
 module.exports = LobbyModule;
 
 
-},{"./lobby":422}],424:[function(require,module,exports){
+},{"./lobby":424}],426:[function(require,module,exports){
 var Modules;
 
 Modules = {
@@ -38957,7 +39229,7 @@ Modules = {
 module.exports = Modules;
 
 
-},{"./game/module":406,"./home/module":416,"./layout/module":421,"./lobby/module":423}],425:[function(require,module,exports){
+},{"./game/module":407,"./home/module":418,"./layout/module":423,"./lobby/module":425}],427:[function(require,module,exports){
 var defineMonkeyPatches;
 
 defineMonkeyPatches = function() {
@@ -38967,7 +39239,7 @@ defineMonkeyPatches = function() {
 module.exports = defineMonkeyPatches;
 
 
-},{}],426:[function(require,module,exports){
+},{}],428:[function(require,module,exports){
 var IndexRoute, Link, RootComponent, Route, Router, browserHistory,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -39013,4 +39285,4 @@ RootComponent = (function(superClass) {
 module.exports = RootComponent;
 
 
-},{}]},{},[403]);
+},{}]},{},[404]);

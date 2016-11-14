@@ -5,22 +5,20 @@ Api =
       xhr.open(method, args.url)
       # setup promise callbacks
       xhr.onload = ->
-        if  200 <= @status < 300
-          resolve(xhr.response)
+        if 200 <= xhr.status < 300
+          resolve(JSON.parse(xhr.response))
         else
-          reject(xhr.response)
+          reject(JSON.parse(xhr.response))
       xhr.onerror = ->
-        reject(xhr.response)
-
+        reject(JSON.parse(xhr.response))
       # set headers
       xhr.setRequestHeader(
         "Content-Type",
         "application/json;charset=UTF-8")
       xhr.setRequestHeader(
         'X-CSRF-Token',
-        App.Helpers.Cookies.read('csrf'))
-      console.log App.Helpers.Cookies.read('csrf') 
-    
+        App.Helpers.Cookies.read('CSRF-TOKEN'))
+
       for header, value of args.headers 
         xhr.setRequestHeader(header, value)
 
@@ -31,6 +29,7 @@ Api =
         xhr.send()
 
   POST: (args) ->
+    console.log 'post'
     @request('POST', args)
 
   GET: (args) ->
@@ -41,4 +40,5 @@ Api =
 
   PUT: (args) ->
     @request('PUT', args)
+    
 module.exports = Api

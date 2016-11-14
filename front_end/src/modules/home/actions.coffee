@@ -4,12 +4,19 @@ HomeActions = Reflux.createActions
   logIn: {}
   switchForm: {}
   registerComponents: {}
-  apiSignUp: { async: true }
-  apiLogIn: { async: true }
+  apiSignUp: { asyncResult: true }
+  apiLogIn: { asyncResult: true }
 
-HomeActions.apiSignUp.listen (args) ->
+HomeActions.apiSignUp.listenAndPromise (args) ->
   App.Helpers.Api.POST
     url: 'api/users'
+    data:
+      user: args
+
+HomeActions.apiLogIn.listenAndPromise (args) ->
+  console.log 'apiLogIn'
+  App.Helpers.Api.POST
+    url: 'api/users/login'
     data:
       user: args
 

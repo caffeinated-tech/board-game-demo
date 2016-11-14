@@ -1,4 +1,4 @@
-{ div, ul, li } = React.DOM
+{ div, ul, li, a } = React.DOM
 Link = React.createFactory ReactRouter.Link
 
 
@@ -17,5 +17,8 @@ class NavBar extends React.Component
         li {},
           Link { to: '/lobby' },
             'Lobby'
+        li {},
+          a { href: '/logout'},
+            'Logout'
       
 module.exports = React.createFactory NavBar

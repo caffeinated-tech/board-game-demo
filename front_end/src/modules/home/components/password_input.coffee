@@ -11,7 +11,10 @@ class PasswordInput extends React.Component
         ref: 'password'
       if @props.form.errors.wrongPassword
         Error {},
-          'Incorrect Password '
+          'Incorrect Password'
+      if @props.form.errors.passwordMissing
+        Error {},
+          'Please enter a password'
 
   componentDidMount: ->
     App.Modules.Home.actions.registerComponents

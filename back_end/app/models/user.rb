@@ -19,6 +19,7 @@ class User
 
   def as_json(options = {})
     {
+      id: self.id.to_s,
       name: self.name
     }
   end

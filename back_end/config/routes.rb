@@ -5,8 +5,12 @@ Rails.application.routes.draw do
   get '/game', to: redirect('/')
   get '/lobby', to: redirect('/')
 
+  get '/logout', to: 'web_application#logout'
+
 
   namespace :api do
-    resources :users, only: [:create]
+    post 'users/login', to: 'users#login'
+    resources :users, only: [:create] do
+    end
   end
 end

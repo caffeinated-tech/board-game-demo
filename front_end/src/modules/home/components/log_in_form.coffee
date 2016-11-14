@@ -14,7 +14,7 @@ class LogInForm extends React.Component
         NameInput @props
         PasswordInput @props
         SubmitButton
-          onClick: App.Modules.Home.actions.signUp
+          onClick: App.Modules.Home.actions.logIn
           ,
           "Log in"
         SwitchFormLink {},

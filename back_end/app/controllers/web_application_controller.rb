@@ -1,28 +1,30 @@
 class WebApplicationController < ApplicationController
 
-  protect_from_forgery
   
-  before_filter :auth_check, except: [:index]
-  before_filter :initialize_gon
-  after_filter :set_csrf_cookie
+  before_action :auth_check, except: [:index]
+  before_action :initialize_gon
+  protect_from_forgery
+  after_action :set_csrf_cookie
 
   rescue_from ::BaseError do |error|
     render status:error.status, json: error
   end
   
   def index
-    puts "rendering index"
     render 'web_application/index'
+  end
+
+  def logout
+    reset_session
+    @current_user = nil
+    redirect_to  action: :index
   end
 
   private
 
   def auth_check
-    puts "\n log data"
-    ap session
-    return redirect_to action: :index if current_user.nil?
-    puts "authenticated, current user is"
-    ap current_user 
+    return if current_user.present? 
+    redirect_to action: :index, controller: '/web_application' 
   end
 
   def initialize_gon
@@ -36,6 +38,6 @@ class WebApplicationController < ApplicationController
 
   def set_csrf_cookie
     return unless protect_against_forgery?
-    cookies['XSRF-TOKEN'] = form_authenticity_token 
+    cookies['CSRF-TOKEN'] = form_authenticity_token 
   end
 end

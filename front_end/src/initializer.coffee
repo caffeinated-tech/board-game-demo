@@ -13,11 +13,10 @@ Initializer =
 
   unmount: ->
     unmountComponentAtNode document.querySelector SELECTOR
+  
+  populateStores: ->
+    if gon.user?
+      App.Modules.Home.store.loadUser gon.user
 
-  loadCSRF: ->
-    token = document.querySelector(
-      'meta[name="csrf-token"]').getAttribute('content')
-    App.Helpers.Cookies.write 'csrf', token
-    console.log "csrf=#{token}"
 
 module.exports = Initializer
