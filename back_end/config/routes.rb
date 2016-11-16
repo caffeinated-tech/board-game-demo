@@ -5,6 +5,9 @@ Rails.application.routes.draw do
   get '/game', to: 'web_application#index'
   get '/lobby/', to: 'web_application#index'
   get '/lobby/create', to: 'web_application#index'
+  get '/lobby/games/open', to: 'web_application#index'
+  get '/lobby/games/playing', to: 'web_application#index'
+  get '/lobby/players', to: 'web_application#index'
 
   get '/logout', to: 'web_application#logout'
 

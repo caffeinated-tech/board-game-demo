@@ -25,6 +25,13 @@
 .pure-menu-horizontal {
   background-color: black;
 }
+
 .logo {
   color: white;
+}
+
+.pure-form span {
+  display: inline-block;
+  margin: 10px 0;
+  color: #888;
 }

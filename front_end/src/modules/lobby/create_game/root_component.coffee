@@ -1,14 +1,13 @@
 { div } = React.DOM
-Lobby = require('./lobby')
+CreateGame = require('./create_game')
 
 class RootComponent extends App.Helpers.ConnectStore
   constructor: (props) ->
-    @store = App.Modules.Lobby.store
+    @store = App.Modules.Lobby.CreateGame.store
     super(props)
 
   render: ->
-    console.log 'lobby RootComponent'
     div {},
-      Lobby @state, @props.children
+      CreateGame @state, @props.children
     
 module.exports = RootComponent

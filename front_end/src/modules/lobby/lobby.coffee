@@ -12,4 +12,4 @@ class Lobby extends React.Component
           'This is the Lobby'
         @props.children
 
-module.exports = Lobby
+module.exports = React.createFactory Lobby
