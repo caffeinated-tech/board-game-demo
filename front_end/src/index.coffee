@@ -7,9 +7,11 @@ window.ReactRouter = require 'react-router'
 window.Reflux = require 'reflux'
 window.RefluxPromise = require 'reflux-promise'
 window.Bluebird = require 'bluebird'
-window.Promise = window.Bluebird
 window.ReactDnD = require 'react-dnd'
+window.ActionCable = require 'actioncable'
 
+window.Promise = window.Bluebird
+window.Cable = ActionCable.createConsumer()
 Reflux.use(RefluxPromise(window.Bluebird))
 
 require('./monkey_patches')()
