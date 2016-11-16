@@ -38864,7 +38864,7 @@ window.App.Initializer.populateStores();
 window.App.Initializer.mount();
 
 
-},{"./helpers/helper":411,"./initializer":413,"./modules/module":438,"./monkey_patches":439,"actioncable":1,"bluebird":4,"react":371,"react-dnd":167,"react-dom":187,"react-router":340,"reflux":399,"reflux-promise":395}],413:[function(require,module,exports){
+},{"./helpers/helper":411,"./initializer":413,"./modules/module":439,"./monkey_patches":440,"actioncable":1,"bluebird":4,"react":371,"react-dnd":167,"react-dom":187,"react-router":340,"reflux":399,"reflux-promise":395}],413:[function(require,module,exports){
 var Initializer, SELECTOR, component;
 
 SELECTOR = '#react';
@@ -38891,7 +38891,7 @@ Initializer = {
 module.exports = Initializer;
 
 
-},{"./root_component":440}],414:[function(require,module,exports){
+},{"./root_component":441}],414:[function(require,module,exports){
 var Game, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -39467,7 +39467,7 @@ NavBar = (function(superClass) {
       className: 'pure-menu-list'
     }, li({
       className: 'pure-menu-heading logo'
-    }, 'React-Check'), li({
+    }, 'React \u2713'), li({
       className: 'pure-menu-item'
     }, Link({
       to: '/',
@@ -39548,6 +39548,59 @@ module.exports = LobbyActions;
 
 
 },{}],433:[function(require,module,exports){
+var LeftMenu, Link, div, li, ref, span, ul,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ref = React.DOM, div = ref.div, ul = ref.ul, li = ref.li, span = ref.span;
+
+Link = React.createFactory(ReactRouter.Link);
+
+LeftMenu = (function(superClass) {
+  extend(LeftMenu, superClass);
+
+  function LeftMenu() {
+    return LeftMenu.__super__.constructor.apply(this, arguments);
+  }
+
+  LeftMenu.prototype.render = function() {
+    return div({
+      className: 'pure-menu fixed-left'
+    }, span({
+      className: 'pure-menu-heading'
+    }, 'Options'), ul({
+      className: 'pure-menu-list'
+    }, li({
+      className: 'pure-menu-item'
+    }, Link({
+      to: '/lobby/create',
+      className: 'pure-menu-link'
+    }, "Create Game")), li({
+      className: 'pure-menu-item'
+    }, Link({
+      to: '/lobby/games/open',
+      className: 'pure-menu-link'
+    }, "Open Games")), li({
+      className: 'pure-menu-item'
+    }, Link({
+      to: '/lobby/games/playing',
+      className: 'pure-menu-link'
+    }, "Ongoing games")), li({
+      className: 'pure-menu-item'
+    }, Link({
+      to: '/lobby/players',
+      className: 'pure-menu-link'
+    }, "Players"))));
+  };
+
+  return LeftMenu;
+
+})(React.Component);
+
+module.exports = React.createFactory(LeftMenu);
+
+
+},{}],434:[function(require,module,exports){
 var CreateGame, a, div, h2, li, ref, ul,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -39573,7 +39626,7 @@ CreateGame = (function(superClass) {
 module.exports = CreateGame;
 
 
-},{}],434:[function(require,module,exports){
+},{}],435:[function(require,module,exports){
 var CreateGameModule;
 
 CreateGameModule = {
@@ -39583,14 +39636,14 @@ CreateGameModule = {
 module.exports = CreateGameModule;
 
 
-},{"./create_game":433}],435:[function(require,module,exports){
-var Link, Lobby, a, div, h2, li, ref, span, ul,
+},{"./create_game":434}],436:[function(require,module,exports){
+var LeftMenu, Lobby, div, h2, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-ref = React.DOM, div = ref.div, a = ref.a, h2 = ref.h2, ul = ref.ul, li = ref.li, span = ref.span;
+ref = React.DOM, div = ref.div, h2 = ref.h2;
 
-Link = React.createFactory(ReactRouter.Link);
+LeftMenu = require('./components/left_menu');
 
 Lobby = (function(superClass) {
   extend(Lobby, superClass);
@@ -39603,18 +39656,7 @@ Lobby = (function(superClass) {
     console.log('render the Lobby', this.props);
     return div({
       id: 'lobby'
-    }, div({
-      className: 'pure-menu fixed-left'
-    }, span({
-      className: 'pure-menu-heading'
-    }, 'Options'), ul({
-      className: 'pure-menu-list'
-    }, li({
-      className: 'pure-menu-item'
-    }, Link({
-      to: '/lobby/create',
-      className: 'pure-menu-link'
-    }, "create a new game")))), div({
+    }, LeftMenu(this.props), div({
       className: 'content'
     }, h2({}, 'This is the Lobby'), this.props.children));
   };
@@ -39626,7 +39668,7 @@ Lobby = (function(superClass) {
 module.exports = Lobby;
 
 
-},{}],436:[function(require,module,exports){
+},{"./components/left_menu":433}],437:[function(require,module,exports){
 var LobbyModule;
 
 LobbyModule = {
@@ -39640,7 +39682,7 @@ LobbyModule = {
 module.exports = LobbyModule;
 
 
-},{"./actions":432,"./create_game/module":434,"./lobby":435,"./store":437}],437:[function(require,module,exports){
+},{"./actions":432,"./create_game/module":435,"./lobby":436,"./store":438}],438:[function(require,module,exports){
 var LobbyStore;
 
 LobbyStore = App.Helpers.CreateStore({
@@ -39654,7 +39696,7 @@ LobbyStore = App.Helpers.CreateStore({
 module.exports = LobbyStore;
 
 
-},{}],438:[function(require,module,exports){
+},{}],439:[function(require,module,exports){
 var Modules;
 
 Modules = {
@@ -39667,7 +39709,7 @@ Modules = {
 module.exports = Modules;
 
 
-},{"./game/module":415,"./home/module":426,"./layout/module":431,"./lobby/module":436}],439:[function(require,module,exports){
+},{"./game/module":415,"./home/module":426,"./layout/module":431,"./lobby/module":437}],440:[function(require,module,exports){
 var defineMonkeyPatches;
 
 defineMonkeyPatches = function() {
@@ -39677,7 +39719,7 @@ defineMonkeyPatches = function() {
 module.exports = defineMonkeyPatches;
 
 
-},{}],440:[function(require,module,exports){
+},{}],441:[function(require,module,exports){
 var IndexRoute, Link, RootComponent, Route, Router, browserHistory,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;

@@ -7,7 +7,7 @@ class NavBar extends React.Component
     div { className: 'pure-menu pure-menu-horizontal' },
       ul { className: 'pure-menu-list' },
         li { className: 'pure-menu-heading logo' },
-          'React-Check'
+          'React \u2713'
         li { className: 'pure-menu-item' },
           Link { to: '/' , className: 'pure-menu-link' },
             'Home'
