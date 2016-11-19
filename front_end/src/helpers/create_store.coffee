@@ -16,7 +16,7 @@ CreateStore = (args={}) ->
     form: @form
 
   args.update ?= ->
-    @trigger @props
+    @trigger @props()
 
   args._anyErrors ?= ->
     for name, error of @form.errors

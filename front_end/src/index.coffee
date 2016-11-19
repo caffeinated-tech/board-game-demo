@@ -1,5 +1,3 @@
-console.log 'hello world'
-
 # load libraries
 window.React = require 'react'
 window.ReactDOM = require 'react-dom'

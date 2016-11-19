@@ -4,7 +4,6 @@ LeftMenu = require('./components/left_menu')
 
 class Lobby extends React.Component
   render: ->
-    console.log 'render the Lobby', @props
     div { id: 'lobby' },
       LeftMenu @props
       div { className: 'content' },

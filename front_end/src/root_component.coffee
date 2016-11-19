@@ -8,9 +8,6 @@ IndexRoute = React.createFactory IndexRoute
 class RootComponent extends React.Component
 
   render: ->
-    console.log 'component: App.Modules.Lobby.rootComponent'
-    console.log component: App.Modules.Lobby.rootComponent
-
     Router 
       history: browserHistory
       ,
@@ -30,6 +27,12 @@ class RootComponent extends React.Component
           Route
             path: '/lobby/create'
             component: App.Modules.Lobby.CreateGame.rootComponent 
+          Route
+            path: '/lobby/games/:filter'
+            component: App.Modules.Lobby.GameList.rootComponent
+          Route
+            path: '/lobby/players'
+            component: App.Modules.Lobby.PlayerList.rootComponent 
 
 
 module.exports = RootComponent
