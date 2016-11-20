@@ -14,7 +14,8 @@ class CreateGame extends React.Component
               input 
                 type: 'radio'
                 name: 'player'
-                value: 'white' 
+                value: 'white'
+                ref: 'white' 
                 defaultChecked: true
               'White'
             label { className: 'pure-radio black' },
@@ -31,11 +32,17 @@ class CreateGame extends React.Component
             input 
               type: 'checkbox'
               value: 'private'
+              ref: 'private'
           div { className: 'pure-controls' },
             a
               className: 'pure-button pure-button-primary'
               onClick: @onClick
               'Create Game'
+
+  onClick: =>
+    App.Modules.Lobby.CreateGame.actions.apiNewGame
+      white: @refs.white.checked
+      private_game: @refs.private.checked
 
       
 module.exports = React.createFactory CreateGame

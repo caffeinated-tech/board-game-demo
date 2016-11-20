@@ -10,8 +10,10 @@ Initializer =
   
   connectStores: ->
     App.Modules.Home.store.registerListeners()
+    App.Modules.Game.store.registerListeners()
     App.Modules.Lobby.store.registerListeners()
     App.Modules.Lobby.GameList.store.registerListeners()
+    App.Modules.Lobby.CreateGame.store.registerListeners()
 
   unmount: ->
     unmountComponentAtNode document.querySelector SELECTOR

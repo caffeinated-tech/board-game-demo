@@ -13,8 +13,13 @@ Rails.application.routes.draw do
 
 
   namespace :api do
+    # login and signup
     post 'users/login', to: 'users#login'
     resources :users, only: [:create] do
+    end
+
+    # creating and joining games
+    resources :games, only: [:create, :delete] do
     end
   end
 end

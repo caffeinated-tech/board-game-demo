@@ -8,6 +8,8 @@ class User
   field :name, type: String
   field :password_hash, type: String
 
+  
+
   def password
     @password ||= Password.new(password_hash)
   end
