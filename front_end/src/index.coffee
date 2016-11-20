@@ -13,6 +13,7 @@ window.Cable = ActionCable.createConsumer()
 Reflux.use(RefluxPromise(window.Bluebird))
 
 require('./monkey_patches')()
+require('./constants')
 
 # load modules
 window.App = {} 

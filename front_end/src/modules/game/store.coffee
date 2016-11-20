@@ -3,6 +3,7 @@ GameStore = App.Helpers.CreateStore
   init: ->
     @display = {}
     @game = {}
+    @board = {}
 
   registerListeners: ->
     @listenToMany App.Modules.Game.actions
@@ -15,4 +16,8 @@ GameStore = App.Helpers.CreateStore
     game: @game
     display: @display
 
+
+  _initializeGame: ->
+    @board = {} 
+      
 module.exports = GameStore
