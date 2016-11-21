@@ -2,9 +2,11 @@
 
 class Piece extends React.Component
   render: ->
-    console.log 'render a piece', @props
-    div {},
-      'This is a piece'
+    div { className: "piece #{@props.colour}"},
+      @_type()
+
+  @_type: ->
+    ''
 
 # We export the class as this is only an interface for other pieces to 
 #   overwrite
