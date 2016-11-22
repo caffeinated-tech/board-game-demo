@@ -38647,44 +38647,7 @@ module.exports = warning;
 }).call(this,require('_process'))
 },{"_process":153}],407:[function(require,module,exports){
 window.SetupStartingPieces = function() {
-  return {
-    black: {
-      rook1: [0, 0],
-      knight1: [0, 1],
-      bishop1: [0, 2],
-      queen: [0, 3],
-      king: [0, 4],
-      bishop2: [0, 5],
-      knight2: [0, 6],
-      rook2: [0, 7],
-      pawn1: [1, 0],
-      pawn2: [1, 1],
-      pawn3: [1, 2],
-      pawn4: [1, 3],
-      pawn5: [1, 4],
-      pawn6: [1, 5],
-      pawn7: [1, 6],
-      pawn8: [1, 7]
-    },
-    white: {
-      pawn1: [6, 0],
-      pawn2: [6, 1],
-      pawn3: [6, 2],
-      pawn4: [6, 3],
-      pawn5: [6, 4],
-      pawn6: [6, 5],
-      pawn7: [6, 6],
-      pawn8: [6, 7],
-      rook1: [7, 0],
-      knight1: [7, 1],
-      bishop1: [7, 2],
-      queen: [7, 3],
-      king: [7, 4],
-      bishop2: [7, 5],
-      knight2: [7, 6],
-      rook2: [7, 7]
-    }
-  };
+  return [['black_rook1', 'black_knight1', 'black_bishop1', 'black_queen', 'black_king', 'black_bishop2', 'black_knight2', 'black_rook2'], ['black_pawn1', 'black_pawn2', 'black_pawn3', 'black_pawn4', 'black_pawn5', 'black_pawn6', 'black_pawn7', 'black_pawn8'], [null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null], ['white_pawn1', 'white_pawn2', 'white_pawn3', 'white_pawn4', 'white_pawn5', 'white_pawn6', 'white_pawn7', 'white_pawn8'], ['white_rook1', 'white_knight1', 'white_bishop1', 'white_queen', 'white_king', 'white_bishop2', 'white_knight2', 'white_rook2']];
 };
 
 
@@ -38941,7 +38904,8 @@ module.exports = Initializer;
 var GameActions;
 
 GameActions = Reflux.createActions({
-  setGame: {}
+  setGame: {},
+  selectSquare: {}
 });
 
 module.exports = GameActions;
@@ -38965,7 +38929,7 @@ Board = (function(superClass) {
 
   Board.prototype.render = function() {
     var column, row;
-    console.log('mmmm', this.props.pieces);
+    console.log('@props.board', this.props.board);
     return div({
       className: 'board'
     }, (function() {
@@ -38982,7 +38946,7 @@ Board = (function(superClass) {
             results1.push(Square({
               row: row,
               column: column,
-              piece: this.props.pieces[row][column]
+              piece: this.props.board[row][column]
             }));
           }
           return results1;
@@ -39194,6 +39158,7 @@ module.exports = React.createFactory(Rook);
 
 },{"./piece":421}],424:[function(require,module,exports){
 var Bishop, King, Knight, Pawn, Queen, Rook, Square, div,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -39215,6 +39180,7 @@ Square = (function(superClass) {
   extend(Square, superClass);
 
   function Square() {
+    this._onClick = bind(this._onClick, this);
     return Square.__super__.constructor.apply(this, arguments);
   }
 
@@ -39222,13 +39188,13 @@ Square = (function(superClass) {
     var colourClass;
     colourClass = this.props.column % 2 === this.props.row % 2 ? 'black' : 'white';
     return div({
-      className: "square " + colourClass
+      className: "square " + colourClass,
+      onClick: this._onClick
     }, this.renderPiece(this.props.piece));
   };
 
   Square.prototype.renderPiece = function(piece) {
     var colour, pieceProps, ref, type;
-    console.log("piece", piece);
     if (!piece) {
       return null;
     }
@@ -39252,6 +39218,10 @@ Square = (function(superClass) {
       case 'pawn':
         return Pawn(pieceProps);
     }
+  };
+
+  Square.prototype._onClick = function() {
+    return App.Modules.Game.actions.selectSquare(this.props.column, this.props.row);
   };
 
   return Square;
@@ -39336,7 +39306,9 @@ GameStore = App.Helpers.CreateStore({
   init: function() {
     this.display = {};
     this.game = {};
-    return this._initializeGame();
+    this._initializeGame();
+    this.firstSquare = null;
+    return this.secondSquare = null;
   },
   registerListeners: function() {
     return this.listenToMany(App.Modules.Game.actions);
@@ -39345,43 +39317,44 @@ GameStore = App.Helpers.CreateStore({
     this.game = res;
     return this.update();
   },
+  onSelectSquare: function(column, row) {
+    if (this.firstSquare != null) {
+      return this._setSecondSquare(column, row);
+    } else {
+      return this._setFirstSquare(column, row);
+    }
+  },
   props: function() {
     return {
       game: this.game,
       display: this.display,
-      pieces: this._piecesFromGameState()
+      board: this.board
     };
   },
   _initializeGame: function() {
-    return this.gameState = SetupStartingPieces();
+    return this.board = SetupStartingPieces();
   },
-  _piecesFromGameState: function() {
-    var color, column, coordinates, piece, pieces, piecesByRow, ref, row, x, y;
-    piecesByRow = (function() {
-      var i, results;
-      results = [];
-      for (row = i = 0; i <= 7; row = ++i) {
-        results.push((function() {
-          var j, results1;
-          results1 = [];
-          for (column = j = 0; j <= 7; column = ++j) {
-            results1.push(null);
-          }
-          return results1;
-        })());
-      }
-      return results;
-    })();
-    ref = this.gameState;
-    for (color in ref) {
-      pieces = ref[color];
-      for (piece in pieces) {
-        coordinates = pieces[piece];
-        y = coordinates[0], x = coordinates[1];
-        piecesByRow[y][x] = color + "_" + piece;
-      }
-    }
-    return piecesByRow;
+  _setFirstSquare: function(column, row) {
+    var piece;
+    piece = this.board[row][column];
+    return this.firstSquare = {
+      column: column,
+      row: row,
+      piece: piece
+    };
+  },
+  _setSecondSquare: function(column, row) {
+    var piece;
+    piece = this.board[row][column];
+    this.secondSquare = {
+      column: column,
+      row: row,
+      piece: piece
+    };
+    this.board[this.firstSquare.row][this.firstSquare.column] = null;
+    this.board[row][column] = this.firstSquare.piece;
+    this.firstSquare = this.secondSquare = null;
+    return this.update();
   }
 });
 

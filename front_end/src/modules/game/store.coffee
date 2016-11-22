@@ -4,6 +4,8 @@ GameStore = App.Helpers.CreateStore
     @display = {}
     @game = {}
     @_initializeGame()
+    @firstSquare = null 
+    @secondSquare = null 
 
   registerListeners: ->
     @listenToMany App.Modules.Game.actions
@@ -12,26 +14,42 @@ GameStore = App.Helpers.CreateStore
     @game = res
     @update()
 
+  onSelectSquare: (column, row) ->
+    if @firstSquare?
+      @_setSecondSquare column, row
+    else
+      @_setFirstSquare column, row
+    
   props: ->
     game: @game
     display: @display
-    pieces: @_piecesFromGameState()
+    board: @board
 
   _initializeGame: ->
-    @gameState = SetupStartingPieces() 
+    @board = SetupStartingPieces() 
       
+  _setFirstSquare: (column, row) ->
+    piece = @board[row][column]
+    @firstSquare =
+      column: column
+      row: row
+      piece: piece
 
-  _piecesFromGameState: ->
-    # initialize an empty grid
-    piecesByRow = for row in [0..7]
-      for column in [0..7]
-        null
-    
-    for color, pieces of @gameState
-      for piece, coordinates of pieces
-        [y,x] = coordinates
-        piecesByRow[y][x] = "#{color}_#{piece}"
+  _setSecondSquare: (column, row) ->
+    piece = @board[row][column]
+    @secondSquare =
+      column: column
+      row: row
+      piece: piece
+    # TODO: check if this move is valid
+    # remove piece from first square
+    @board[@firstSquare.row][@firstSquare.column] = null
+    # place piece from first to second square
+    @board[row][column] = @firstSquare.piece
+    # reset selected squares after
+    @firstSquare = @secondSquare = null
+    @update()
 
-    piecesByRow
+
 
 module.exports = GameStore

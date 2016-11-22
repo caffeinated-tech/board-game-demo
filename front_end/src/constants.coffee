@@ -1,35 +1,47 @@
 window.SetupStartingPieces = -> 
-  black: 
-    rook1: [0,0]
-    knight1: [0,1]
-    bishop1: [0,2]
-    queen: [0,3]
-    king: [0,4]
-    bishop2: [0,5]
-    knight2: [0,6]
-    rook2: [0,7]
-    pawn1: [1,0]
-    pawn2: [1,1]
-    pawn3: [1,2]
-    pawn4: [1,3]
-    pawn5: [1,4]
-    pawn6: [1,5]
-    pawn7: [1,6]
-    pawn8: [1,7]
-  white: 
-    pawn1: [6,0]
-    pawn2: [6,1]
-    pawn3: [6,2]
-    pawn4: [6,3]
-    pawn5: [6,4]
-    pawn6: [6,5]
-    pawn7: [6,6]
-    pawn8: [6,7]
-    rook1: [7,0]
-    knight1: [7,1]
-    bishop1: [7,2]
-    queen: [7,3]
-    king: [7,4]
-    bishop2: [7,5]
-    knight2: [7,6]
-    rook2: [7,7]
+  [
+    [
+      'black_rook1',
+      'black_knight1',
+      'black_bishop1',
+      'black_queen',
+      'black_king',
+      'black_bishop2',
+      'black_knight2',
+      'black_rook2'
+    ],
+    [
+      'black_pawn1',
+      'black_pawn2',
+      'black_pawn3',
+      'black_pawn4',
+      'black_pawn5',
+      'black_pawn6',
+      'black_pawn7',
+      'black_pawn8'
+    ],
+    [null,null,null,null,null,null,null,null],
+    [null,null,null,null,null,null,null,null],
+    [null,null,null,null,null,null,null,null],
+    [null,null,null,null,null,null,null,null],
+    [
+      'white_pawn1',
+      'white_pawn2',
+      'white_pawn3',
+      'white_pawn4',
+      'white_pawn5',
+      'white_pawn6',
+      'white_pawn7',
+      'white_pawn8'
+    ],
+    [
+      'white_rook1',
+      'white_knight1',
+      'white_bishop1',
+      'white_queen',
+      'white_king',
+      'white_bishop2',
+      'white_knight2',
+      'white_rook2'
+    ]
+  ]
