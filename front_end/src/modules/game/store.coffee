@@ -20,6 +20,13 @@ GameStore = App.Helpers.CreateStore
     else
       @_setFirstSquare column, row
     
+  onSetPlayer: (user) ->
+    console.log 'onSetPlayer', user 
+    @player = user
+    if not @game? and user.game?
+      @game = user.game
+
+
   props: ->
     game: @game
     display: @display

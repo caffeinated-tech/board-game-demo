@@ -19,10 +19,15 @@ class User
     self.password_hash = @password
   end
 
+  def ongoing_game
+    Game.ongoing_for_user(self.id).first
+  end
+
   def as_json(options = {})
     {
-      id: self.id.to_s,
-      name: self.name
+      id: id.to_s,
+      name: name,
+      game: ongoing_game.as_json 
     }
   end
 end

@@ -38905,7 +38905,9 @@ var GameActions;
 
 GameActions = Reflux.createActions({
   setGame: {},
-  selectSquare: {}
+  selectSquare: {},
+  setPlayer: {},
+  setEnemy: {}
 });
 
 module.exports = GameActions;
@@ -38929,7 +38931,6 @@ Board = (function(superClass) {
 
   Board.prototype.render = function() {
     var column, row;
-    console.log('@props.board', this.props.board);
     return div({
       className: 'board'
     }, (function() {
@@ -39322,6 +39323,13 @@ GameStore = App.Helpers.CreateStore({
       return this._setSecondSquare(column, row);
     } else {
       return this._setFirstSquare(column, row);
+    }
+  },
+  onSetPlayer: function(user) {
+    console.log('onSetPlayer', user);
+    this.player = user;
+    if ((this.game == null) && (user.game != null)) {
+      return this.game = user.game;
     }
   },
   props: function() {
@@ -39797,7 +39805,7 @@ HomeStore = App.Helpers.CreateStore({
   },
   onApiSignUpCompleted: function(res) {
     console.log('onApiSignUpCompleted', res);
-    this.user = res;
+    this._loginUser(res);
     return this.update();
   },
   onApiSignUpFailed: function(res) {
@@ -39823,7 +39831,7 @@ HomeStore = App.Helpers.CreateStore({
     return this.update();
   },
   onApiLogInCompleted: function(res) {
-    this.user = res;
+    this._loginUser(res);
     return this.update();
   },
   onApiLogInFailed: function(res) {
@@ -39847,7 +39855,7 @@ HomeStore = App.Helpers.CreateStore({
     };
   },
   loadUser: function(user) {
-    this.user = user;
+    this._loginUser(user);
     return this.update();
   },
   _clearFormErrors: function() {
@@ -39872,6 +39880,10 @@ HomeStore = App.Helpers.CreateStore({
         return true;
       }
     }
+  },
+  _loginUser: function(user) {
+    this.user = user;
+    return App.Modules.Game.actions.setPlayer(user);
   }
 });
 
@@ -40046,7 +40058,9 @@ LobbyActions = Reflux.createActions({
 LobbyActions.apiNewGame.listenAndPromise(function(args) {
   return App.Helpers.Api.POST({
     url: '/api/games',
-    data: args
+    data: {
+      game: args
+    }
   });
 });
 
@@ -40513,7 +40527,6 @@ RootComponent = (function(superClass) {
   }
 
   RootComponent.prototype.render = function() {
-    console.log('RootComponent');
     return Router({
       history: browserHistory
     }, Route({

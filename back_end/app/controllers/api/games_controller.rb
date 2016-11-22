@@ -11,6 +11,7 @@ module Api
       else
         game.black_user_id = current_user.id 
       end
+      game.save
 
       render json: game
   	end

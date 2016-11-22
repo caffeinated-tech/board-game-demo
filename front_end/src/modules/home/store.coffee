@@ -46,7 +46,7 @@ HomeStore = App.Helpers.CreateStore
 
   onApiSignUpCompleted: (res) ->
     console.log 'onApiSignUpCompleted', res
-    @user = res
+    @_loginUser res
     @update()
 
   onApiSignUpFailed: (res) ->
@@ -64,7 +64,7 @@ HomeStore = App.Helpers.CreateStore
     @update()
 
   onApiLogInCompleted: (res) ->
-    @user = res
+    @_loginUser res
     @update()
 
   onApiLogInFailed: (res) ->
@@ -85,7 +85,7 @@ HomeStore = App.Helpers.CreateStore
   # various helper methods
 
   loadUser: (user) ->
-    @user = user
+    @_loginUser user
     @update()
 
   _clearFormErrors: ->
@@ -103,5 +103,9 @@ HomeStore = App.Helpers.CreateStore
   _anyErrors: ->
     for name, error of @form.errors
       return true if error
+
+  _loginUser: (user) ->
+    @user = user
+    App.Modules.Game.actions.setPlayer user
 
 module.exports = HomeStore

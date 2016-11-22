@@ -3,7 +3,6 @@ Square = require './square'
 
 class Board extends React.Component
   render: ->
-    console.log '@props.board', @props.board
     div { className: 'board' },
       for row in [0..7]
         div { className: 'row', key: "row-#{row}" },

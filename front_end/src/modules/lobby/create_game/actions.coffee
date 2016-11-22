@@ -5,7 +5,8 @@ LobbyActions = Reflux.createActions
 LobbyActions.apiNewGame.listenAndPromise (args) ->
   App.Helpers.Api.POST
     url: '/api/games'
-    data: args
+    data: 
+      game: args
 
 
 module.exports = LobbyActions

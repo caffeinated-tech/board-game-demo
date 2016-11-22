@@ -8,7 +8,6 @@ IndexRoute = React.createFactory IndexRoute
 class RootComponent extends React.Component
 
   render: ->
-    console.log 'RootComponent'
     Router 
       history: browserHistory
       ,
