@@ -39306,7 +39306,7 @@ var GameStore;
 GameStore = App.Helpers.CreateStore({
   init: function() {
     this.display = {};
-    this.game = {};
+    this.game = null;
     this._initializeGame();
     this.firstSquare = null;
     return this.secondSquare = null;
@@ -39316,7 +39316,10 @@ GameStore = App.Helpers.CreateStore({
   },
   onSetGame: function(res) {
     this.game = res;
-    return this.update();
+    this.update();
+    if (this.player != null) {
+      return this._setPlayerColour();
+    }
   },
   onSelectSquare: function(column, row) {
     if (this.firstSquare != null) {
@@ -39326,11 +39329,12 @@ GameStore = App.Helpers.CreateStore({
     }
   },
   onSetPlayer: function(user) {
-    console.log('onSetPlayer', user);
     this.player = user;
     if ((this.game == null) && (user.game != null)) {
-      return this.game = user.game;
+      this.game = user.game;
+      this._setPlayerColour();
     }
+    return this.update();
   },
   props: function() {
     return {
@@ -39345,6 +39349,9 @@ GameStore = App.Helpers.CreateStore({
   _setFirstSquare: function(column, row) {
     var piece;
     piece = this.board[row][column];
+    if (!((piece != null) && this._pieceIsUserColour(piece))) {
+      return;
+    }
     return this.firstSquare = {
       column: column,
       row: row,
@@ -39359,10 +39366,24 @@ GameStore = App.Helpers.CreateStore({
       row: row,
       piece: piece
     };
+    if (((piece != null) && this._pieceIsUserColour(piece)) || !this._isValidMove()) {
+      this.firstSquare = this.secondSquare = null;
+      return;
+    }
     this.board[this.firstSquare.row][this.firstSquare.column] = null;
     this.board[row][column] = this.firstSquare.piece;
     this.firstSquare = this.secondSquare = null;
     return this.update();
+  },
+  _setPlayerColour: function() {
+    if (this.game.white_user_id === this.player.id) {
+      return this.player.colour = 'white';
+    } else {
+      return this.player.colour = 'black';
+    }
+  },
+  _pieceIsUserColour: function(piece) {
+    return new RegExp(this.player.colour).test(piece);
   }
 });
 
