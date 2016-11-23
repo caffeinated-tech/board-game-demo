@@ -39384,6 +39384,101 @@ GameStore = App.Helpers.CreateStore({
   },
   _pieceIsUserColour: function(piece) {
     return new RegExp(this.player.colour).test(piece);
+  },
+  _isValidMove: function() {
+    if (/pawn/.test(this.firstSquare.piece)) {
+      return this._isValidMoveForPawn();
+    } else if (/rook/.test(this.firstSquare.piece)) {
+      return this._isValidMoveForRook();
+    } else if (/knight/.test(this.firstSquare.piece)) {
+      return this._isValidMoveForKnight();
+    } else if (/bishop/.test(this.firstSquare.piece)) {
+      return this._isValidMoveForBishop();
+    } else if (/king/.test(this.firstSquare.piece)) {
+      return this._isValidMoveForKing();
+    } else if (/queen/.test(this.firstSquare.piece)) {
+      return this._isValidMoveForQueen();
+    } else {
+      return false;
+    }
+  },
+  _isValidMoveForPawn: function() {
+    if (this.secondSquare.piece === null) {
+      if (this.firstSquare.column !== this.secondSquare.column) {
+        return false;
+      }
+      if (this.player.colour === 'white') {
+        if (this.firstSquare.row < this.secondSquare.row) {
+          return false;
+        }
+        if (this.firstSquare.row - 1 === this.secondSquare.row) {
+          return true;
+        }
+        if (this.firstSquare.row === 6 && this.secondSquare.row === 4) {
+          return true;
+        }
+        return false;
+      } else {
+        if (this.firstSquare.row > this.secondSquare.row) {
+          return false;
+        }
+        if (this.firstSquare.row + 1 === this.secondSquare.row) {
+          return true;
+        }
+        if (this.firstSquare.row === 1 && this.secondSquare.row(3)) {
+          return true;
+        }
+        return false;
+      }
+    } else {
+      if (this.player.colour === 'white') {
+        if (this.firstSquare.row - 1 !== this.secondSquare.row) {
+          return false;
+        }
+        if (!(this.firstSquare.column - 1 === this.secondSquare.column || this.firstSquare.column + 1 === this.secondSquare.column)) {
+          return false;
+        }
+        return true;
+      } else {
+        if (this.firstSquare.row - 1 !== this.secondSquare.row) {
+          return false;
+        }
+        if (!(this.firstSquare.column - 1 === this.secondSquare.row || this.firstSquare.column + 1 === this.secondSquare.row)) {
+          return false;
+        }
+        return true;
+      }
+    }
+  },
+  _isValidMoveForRook: function() {
+    console.log(this.firstSquare.column);
+    console.log(this.firstSquare.row);
+    console.log(this.secondSquare.column);
+    return console.log(this.secondSquare.row);
+  },
+  _isValidMoveForKnight: function() {
+    console.log(this.firstSquare.column);
+    console.log(this.firstSquare.row);
+    console.log(this.secondSquare.column);
+    return console.log(this.secondSquare.row);
+  },
+  _isValidMoveForBishop: function() {
+    console.log(this.firstSquare.column);
+    console.log(this.firstSquare.row);
+    console.log(this.secondSquare.column);
+    return console.log(this.secondSquare.row);
+  },
+  _isValidMoveForKing: function() {
+    console.log(this.firstSquare.column);
+    console.log(this.firstSquare.row);
+    console.log(this.secondSquare.column);
+    return console.log(this.secondSquare.row);
+  },
+  _isValidMoveForQueen: function() {
+    console.log(this.firstSquare.column);
+    console.log(this.firstSquare.row);
+    console.log(this.secondSquare.column);
+    return console.log(this.secondSquare.row);
   }
 });
 

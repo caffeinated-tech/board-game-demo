@@ -77,4 +77,94 @@ GameStore = App.Helpers.CreateStore
   _pieceIsUserColour: (piece) ->
     new RegExp(@player.colour).test(piece)
 
+  _isValidMove: ->
+    if /pawn/.test @firstSquare.piece
+      @_isValidMoveForPawn()
+    else if /rook/.test @firstSquare.piece
+      @_isValidMoveForRook()
+    else if /knight/.test @firstSquare.piece
+      @_isValidMoveForKnight()
+    else if /bishop/.test @firstSquare.piece
+      @_isValidMoveForBishop()
+    else if /king/.test @firstSquare.piece
+      @_isValidMoveForKing()
+    else if /queen/.test @firstSquare.piece
+      @_isValidMoveForQueen()
+    else
+      false
+
+  _isValidMoveForPawn: ->
+    if @secondSquare.piece is null
+      # we are moving into an empty square, this is only allowed if the pawn is
+      #   moving straight ahead
+      return false if @firstSquare.column isnt @secondSquare.column
+      # even if we are in the same coumn, check that we are moving in
+      #   the correct direction for our colour
+      if @player.colour is 'white'
+        # check that I'm moving forward
+        return false if @firstSquare.row < @secondSquare.row
+        # I'm allowed to move forward by 1
+        return true if @firstSquare.row - 1 is @secondSquare.row
+        # I'm allowed to move forward by 2 if the pawn is in it's starting 
+        #   position
+        return true if @firstSquare.row is 6 and @secondSquare.row is 4
+        # otherwise we can't move
+        false
+      else
+        # check that I'm moving forward
+        return false if @firstSquare.row > @secondSquare.row
+        # I'm allowed to move forward by 1
+        return true if @firstSquare.row + 1 is @secondSquare.row
+        # I'm allowed to move forward by 2 if the pawn is in it's starting 
+        #   position
+        return true if @firstSquare.row is 1 and  @secondSquare.row 3
+        # otherwise we can't move
+        false
+    else
+      if @player.colour is 'white'
+        # we need to be moving forward
+        return false unless @firstSquare.row - 1 is @secondSquare.row
+        # we need to be moving left or right by one column
+        return false unless @firstSquare.column - 1 is @secondSquare.column or
+          @firstSquare.column + 1 is @secondSquare.column
+        true
+      else
+        # we need to be moving forward
+        return false unless @firstSquare.row - 1 is @secondSquare.row
+        # we need to be moving left or right by one column
+        return false unless @firstSquare.column - 1 is @secondSquare.row or
+          @firstSquare.column + 1 is @secondSquare.row
+        true
+
+  _isValidMoveForRook: ->
+    console.log @firstSquare.column
+    console.log @firstSquare.row
+    console.log @secondSquare.column
+    console.log @secondSquare.row
+
+  _isValidMoveForKnight: ->
+    console.log @firstSquare.column
+    console.log @firstSquare.row
+    console.log @secondSquare.column
+    console.log @secondSquare.row
+
+  _isValidMoveForBishop: ->
+    console.log @firstSquare.column
+    console.log @firstSquare.row
+    console.log @secondSquare.column
+    console.log @secondSquare.row
+
+  _isValidMoveForKing: ->
+    console.log @firstSquare.column
+    console.log @firstSquare.row
+    console.log @secondSquare.column
+    console.log @secondSquare.row
+
+  _isValidMoveForQueen: ->
+    console.log @firstSquare.column
+    console.log @firstSquare.row
+    console.log @secondSquare.column
+    console.log @secondSquare.row
+
+
 module.exports = GameStore
