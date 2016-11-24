@@ -39376,14 +39376,16 @@ GameStore = App.Helpers.CreateStore({
     return this.update();
   },
   _setSecondSquare: function(column, row) {
-    var piece;
+    var move, piece, validMove;
     piece = this.board[row][column];
     this.secondSquare = {
       column: column,
       row: row,
       piece: piece
     };
-    if ((piece != null) && this._pieceIsUserColour(piece)) {
+    move = "" + row + column;
+    validMove = indexOf.call(this.validMoves, move) >= 0;
+    if (((piece != null) && this._pieceIsUserColour(piece)) || !validMove) {
       this._resetSelectedSquares();
       this.update();
       return;
@@ -39531,6 +39533,9 @@ GameStore = App.Helpers.CreateStore({
       c = col;
       for (r = i = ref = row - 1; ref <= 0 ? i <= 0 : i >= 0; r = ref <= 0 ? ++i : --i) {
         c -= 1;
+        if (c < 0) {
+          break;
+        }
         if (this._playerSquare(r, c)) {
           break;
         }
@@ -39544,6 +39549,9 @@ GameStore = App.Helpers.CreateStore({
       c = col;
       for (r = j = ref1 = row + 1; ref1 <= 7 ? j <= 7 : j >= 7; r = ref1 <= 7 ? ++j : --j) {
         c -= 1;
+        if (c < 0) {
+          break;
+        }
         if (this._playerSquare(r, c)) {
           break;
         }
@@ -39557,6 +39565,9 @@ GameStore = App.Helpers.CreateStore({
       r = row;
       for (c = k = ref2 = col + 1; ref2 <= 7 ? k <= 7 : k >= 7; c = ref2 <= 7 ? ++k : --k) {
         r += 1;
+        if (r > 7) {
+          break;
+        }
         if (this._playerSquare(r, c)) {
           break;
         }
@@ -39571,6 +39582,9 @@ GameStore = App.Helpers.CreateStore({
       results = [];
       for (c = l = ref3 = col + 1; ref3 <= 7 ? l <= 7 : l >= 7; c = ref3 <= 7 ? ++l : --l) {
         r -= 1;
+        if (r < 0) {
+          break;
+        }
         if (this._playerSquare(r, c)) {
           break;
         }

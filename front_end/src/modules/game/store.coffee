@@ -29,7 +29,6 @@ GameStore = App.Helpers.CreateStore
       @_setPlayerColour()
     @update()
 
-
   props: ->
     game: @game
     display: @display
@@ -63,7 +62,9 @@ GameStore = App.Helpers.CreateStore
       row: row
       piece: piece
 
-    if (piece? and @_pieceIsUserColour(piece))
+    move = "#{row}#{column}"
+    validMove = move in @validMoves
+    if (piece? and @_pieceIsUserColour(piece)) or not validMove
       @_resetSelectedSquares()
       @update()
       return
@@ -176,6 +177,7 @@ GameStore = App.Helpers.CreateStore
       c = col
       for r in [row-1..0]
         c -= 1
+        break if c < 0
         break if @_playerSquare(r,c)
         @validMoves.push "#{r}#{c}"
         break if @_enemySquare(r,c)
@@ -184,6 +186,7 @@ GameStore = App.Helpers.CreateStore
       c = col
       for r in [row+1..7]
         c -= 1
+        break if c < 0
         break if @_playerSquare(r,c)
         @validMoves.push "#{r}#{c}"
         break if @_enemySquare(r,c)
@@ -192,6 +195,7 @@ GameStore = App.Helpers.CreateStore
       r = row
       for c in [col+1..7]
         r += 1
+        break if r > 7
         break if @_playerSquare(r,c)
         @validMoves.push "#{r}#{c}"
         break if @_enemySquare(r,c)
@@ -200,6 +204,7 @@ GameStore = App.Helpers.CreateStore
       r = row
       for c in [col+1..7]
         r -= 1
+        break if r < 0
         break if @_playerSquare(r,c)
         @validMoves.push "#{r}#{c}"
         break if @_enemySquare(r,c)
