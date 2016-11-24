@@ -152,17 +152,78 @@ GameStore = App.Helpers.CreateStore
         break if @_enemySquare(row,c)
 
   _markValidMovesForKnight: ->
-    null
+    row = @firstSquare.row
+    col = @firstSquare.column
+    possibleMoves = []
+    possibleMoves.push [row+1, col+2]
+    possibleMoves.push [row+1, col-2]
+    possibleMoves.push [row-1, col+2]
+    possibleMoves.push [row-1, col-2]
+    possibleMoves.push [row+2, col+1]
+    possibleMoves.push [row+2, col-1]
+    possibleMoves.push [row-2, col+1]
+    possibleMoves.push [row-2, col-1]
+    for move in possibleMoves
+      [r,c] = move
+      continue unless r in [0..7] and c in [0..7]
+      @validMoves.push "#{r}#{c}" unless @_playerSquare(r,c)
 
   _markValidMovesForBishop: ->
-    null
+    row = @firstSquare.row
+    col = @firstSquare.column
+    # NE
+    if row isnt 0 and col isnt 0
+      c = col
+      for r in [row-1..0]
+        c -= 1
+        break if @_playerSquare(r,c)
+        @validMoves.push "#{r}#{c}"
+        break if @_enemySquare(r,c)
+    # SE
+    if row isnt 7 and col isnt 0
+      c = col
+      for r in [row+1..7]
+        c -= 1
+        break if @_playerSquare(r,c)
+        @validMoves.push "#{r}#{c}"
+        break if @_enemySquare(r,c)
+    # SW
+    if row isnt 7 and col isnt 7
+      r = row
+      for c in [col+1..7]
+        r += 1
+        break if @_playerSquare(r,c)
+        @validMoves.push "#{r}#{c}"
+        break if @_enemySquare(r,c)
+    # NW
+    if row isnt 0 and col isnt 7
+      r = row
+      for c in [col+1..7]
+        r -= 1
+        break if @_playerSquare(r,c)
+        @validMoves.push "#{r}#{c}"
+        break if @_enemySquare(r,c)
 
   _markValidMovesForKing: ->
-    null
+    row = @firstSquare.row
+    col = @firstSquare.column
+    possibleMoves = []
+    possibleMoves.push [row,col+1]
+    possibleMoves.push [row,col-1]
+    possibleMoves.push [row+1,col]
+    possibleMoves.push [row-1,col]
+    possibleMoves.push [row+1,col+1]
+    possibleMoves.push [row-1,col+1]
+    possibleMoves.push [row+1,col-1]
+    possibleMoves.push [row-1,col-1]
+    for move in possibleMoves
+      [r,c] = move
+      continue unless r in [0..7] and c in [0..7]
+      @validMoves.push "#{r}#{c}" unless @_playerSquare(r,c)
 
   _markValidMovesForQueen: ->
-    null
-
+    @_markValidMovesForRook()
+    @_markValidMovesForBishop()
 
   _emptySquare: (row, column) ->
     not @board[row][column]?

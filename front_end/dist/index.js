@@ -39310,7 +39310,8 @@ module.exports = RootComponent;
 
 
 },{"./game":425}],428:[function(require,module,exports){
-var GameStore;
+var GameStore,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 GameStore = App.Helpers.CreateStore({
   init: function() {
@@ -39495,16 +39496,125 @@ GameStore = App.Helpers.CreateStore({
     }
   },
   _markValidMovesForKnight: function() {
-    return null;
+    var c, col, i, len, move, possibleMoves, r, results, row;
+    row = this.firstSquare.row;
+    col = this.firstSquare.column;
+    possibleMoves = [];
+    possibleMoves.push([row + 1, col + 2]);
+    possibleMoves.push([row + 1, col - 2]);
+    possibleMoves.push([row - 1, col + 2]);
+    possibleMoves.push([row - 1, col - 2]);
+    possibleMoves.push([row + 2, col + 1]);
+    possibleMoves.push([row + 2, col - 1]);
+    possibleMoves.push([row - 2, col + 1]);
+    possibleMoves.push([row - 2, col - 1]);
+    results = [];
+    for (i = 0, len = possibleMoves.length; i < len; i++) {
+      move = possibleMoves[i];
+      r = move[0], c = move[1];
+      if (!(indexOf.call([0, 1, 2, 3, 4, 5, 6, 7], r) >= 0 && indexOf.call([0, 1, 2, 3, 4, 5, 6, 7], c) >= 0)) {
+        continue;
+      }
+      if (!this._playerSquare(r, c)) {
+        results.push(this.validMoves.push("" + r + c));
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
   },
   _markValidMovesForBishop: function() {
-    return null;
+    var c, col, i, j, k, l, r, ref, ref1, ref2, ref3, results, row;
+    row = this.firstSquare.row;
+    col = this.firstSquare.column;
+    if (row !== 0 && col !== 0) {
+      c = col;
+      for (r = i = ref = row - 1; ref <= 0 ? i <= 0 : i >= 0; r = ref <= 0 ? ++i : --i) {
+        c -= 1;
+        if (this._playerSquare(r, c)) {
+          break;
+        }
+        this.validMoves.push("" + r + c);
+        if (this._enemySquare(r, c)) {
+          break;
+        }
+      }
+    }
+    if (row !== 7 && col !== 0) {
+      c = col;
+      for (r = j = ref1 = row + 1; ref1 <= 7 ? j <= 7 : j >= 7; r = ref1 <= 7 ? ++j : --j) {
+        c -= 1;
+        if (this._playerSquare(r, c)) {
+          break;
+        }
+        this.validMoves.push("" + r + c);
+        if (this._enemySquare(r, c)) {
+          break;
+        }
+      }
+    }
+    if (row !== 7 && col !== 7) {
+      r = row;
+      for (c = k = ref2 = col + 1; ref2 <= 7 ? k <= 7 : k >= 7; c = ref2 <= 7 ? ++k : --k) {
+        r += 1;
+        if (this._playerSquare(r, c)) {
+          break;
+        }
+        this.validMoves.push("" + r + c);
+        if (this._enemySquare(r, c)) {
+          break;
+        }
+      }
+    }
+    if (row !== 0 && col !== 7) {
+      r = row;
+      results = [];
+      for (c = l = ref3 = col + 1; ref3 <= 7 ? l <= 7 : l >= 7; c = ref3 <= 7 ? ++l : --l) {
+        r -= 1;
+        if (this._playerSquare(r, c)) {
+          break;
+        }
+        this.validMoves.push("" + r + c);
+        if (this._enemySquare(r, c)) {
+          break;
+        } else {
+          results.push(void 0);
+        }
+      }
+      return results;
+    }
   },
   _markValidMovesForKing: function() {
-    return null;
+    var c, col, i, len, move, possibleMoves, r, results, row;
+    row = this.firstSquare.row;
+    col = this.firstSquare.column;
+    possibleMoves = [];
+    possibleMoves.push([row, col + 1]);
+    possibleMoves.push([row, col - 1]);
+    possibleMoves.push([row + 1, col]);
+    possibleMoves.push([row - 1, col]);
+    possibleMoves.push([row + 1, col + 1]);
+    possibleMoves.push([row - 1, col + 1]);
+    possibleMoves.push([row + 1, col - 1]);
+    possibleMoves.push([row - 1, col - 1]);
+    results = [];
+    for (i = 0, len = possibleMoves.length; i < len; i++) {
+      move = possibleMoves[i];
+      r = move[0], c = move[1];
+      if (!(indexOf.call([0, 1, 2, 3, 4, 5, 6, 7], r) >= 0 && indexOf.call([0, 1, 2, 3, 4, 5, 6, 7], c) >= 0)) {
+        continue;
+      }
+      if (!this._playerSquare(r, c)) {
+        results.push(this.validMoves.push("" + r + c));
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
   },
   _markValidMovesForQueen: function() {
-    return null;
+    this._markValidMovesForRook();
+    return this._markValidMovesForBishop();
   },
   _emptySquare: function(row, column) {
     return this.board[row][column] == null;
