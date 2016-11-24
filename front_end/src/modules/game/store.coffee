@@ -3,6 +3,7 @@ GameStore = App.Helpers.CreateStore
   init: ->
     @display = {}
     @game = null
+    @validMoves = []
     @_initializeGame()
     @firstSquare = null 
     @secondSquare = null 
@@ -33,6 +34,8 @@ GameStore = App.Helpers.CreateStore
     game: @game
     display: @display
     board: @board
+    validMoves: @validMoves
+    selectedSquare: "#{@firstSquare.row}#{@firstSquare.column}" if @firstSquare?
 
   _initializeGame: ->
     @board = SetupStartingPieces() 
@@ -40,11 +43,17 @@ GameStore = App.Helpers.CreateStore
   _setFirstSquare: (column, row) ->
     piece = @board[row][column]
     # can only select a piece of the same colour as the user
-    return unless piece? and @_pieceIsUserColour(piece)
+    unless piece? and @_pieceIsUserColour(piece)
+      @_resetSelectedSquares()
+      @update()
+      return
+
     @firstSquare =
       column: column
       row: row
       piece: piece
+    @_markValidMoves()
+    @update()
 
   _setSecondSquare: (column, row) ->
     piece = @board[row][column]
@@ -54,18 +63,22 @@ GameStore = App.Helpers.CreateStore
       row: row
       piece: piece
 
-    if (piece? and @_pieceIsUserColour(piece)) or not @_isValidMove()
-      # reset move and return
-      @firstSquare = @secondSquare = null
+    if (piece? and @_pieceIsUserColour(piece))
+      @_resetSelectedSquares()
+      @update()
       return
     # TODO: check if this move is valid
     # remove piece from first square
     @board[@firstSquare.row][@firstSquare.column] = null
     # place piece from first to second square
     @board[row][column] = @firstSquare.piece
-    # reset selected squares after
-    @firstSquare = @secondSquare = null
+    # reset selected squares after move
+    @_resetSelectedSquares()
     @update()
+
+  _resetSelectedSquares: ->
+    @firstSquare = @secondSquare = null
+    @validMoves = []
 
   _setPlayerColour: ->
     if @game.white_user_id is @player.id
@@ -77,94 +90,91 @@ GameStore = App.Helpers.CreateStore
   _pieceIsUserColour: (piece) ->
     new RegExp(@player.colour).test(piece)
 
-  _isValidMove: ->
+  _markValidMoves: ->
     if /pawn/.test @firstSquare.piece
-      @_isValidMoveForPawn()
+      @_markValidMovesForPawn()
     else if /rook/.test @firstSquare.piece
-      @_isValidMoveForRook()
+      @_markValidMovesForRook()
     else if /knight/.test @firstSquare.piece
-      @_isValidMoveForKnight()
+      @_markValidMovesForKnight()
     else if /bishop/.test @firstSquare.piece
-      @_isValidMoveForBishop()
+      @_markValidMovesForBishop()
     else if /king/.test @firstSquare.piece
-      @_isValidMoveForKing()
+      @_markValidMovesForKing()
     else if /queen/.test @firstSquare.piece
-      @_isValidMoveForQueen()
+      @_markValidMovesForQueen()
     else
       false
 
-  _isValidMoveForPawn: ->
-    if @secondSquare.piece is null
-      # we are moving into an empty square, this is only allowed if the pawn is
-      #   moving straight ahead
-      return false if @firstSquare.column isnt @secondSquare.column
-      # even if we are in the same coumn, check that we are moving in
-      #   the correct direction for our colour
-      if @player.colour is 'white'
-        # check that I'm moving forward
-        return false if @firstSquare.row < @secondSquare.row
-        # I'm allowed to move forward by 1
-        return true if @firstSquare.row - 1 is @secondSquare.row
-        # I'm allowed to move forward by 2 if the pawn is in it's starting 
-        #   position
-        return true if @firstSquare.row is 6 and @secondSquare.row is 4
-        # otherwise we can't move
-        false
-      else
-        # check that I'm moving forward
-        return false if @firstSquare.row > @secondSquare.row
-        # I'm allowed to move forward by 1
-        return true if @firstSquare.row + 1 is @secondSquare.row
-        # I'm allowed to move forward by 2 if the pawn is in it's starting 
-        #   position
-        return true if @firstSquare.row is 1 and  @secondSquare.row 3
-        # otherwise we can't move
-        false
-    else
-      if @player.colour is 'white'
-        # we need to be moving forward
-        return false unless @firstSquare.row - 1 is @secondSquare.row
-        # we need to be moving left or right by one column
-        return false unless @firstSquare.column - 1 is @secondSquare.column or
-          @firstSquare.column + 1 is @secondSquare.column
-        true
-      else
-        # we need to be moving forward
-        return false unless @firstSquare.row - 1 is @secondSquare.row
-        # we need to be moving left or right by one column
-        return false unless @firstSquare.column - 1 is @secondSquare.row or
-          @firstSquare.column + 1 is @secondSquare.row
-        true
+  _markValidMovesForPawn: ->
+    row = @firstSquare.row
+    col = @firstSquare.column
+    direction = if @player.colour is 'white' then -1 else 1 
 
-  _isValidMoveForRook: ->
-    console.log @firstSquare.column
-    console.log @firstSquare.row
-    console.log @secondSquare.column
-    console.log @secondSquare.row
+    # can move forward unless there is a piece in that spot
+    if @_emptySquare(row + direction, col)
+      @validMoves.push "#{row+direction}#{col}"
+    # starting row means we can move forward by two
+    if row is 6 and @_emptySquare(row+(direction*2), col) 
+      @validMoves.push "#{row+(direction*2)}#{col}"
+    # now check for pieces in the diagonal locaitons which can be taken
+    if @_enemySquare(row + direction, col-1)
+      @validMoves.push "#{row+direction}#{col-1}"
+    if @_enemySquare(row + direction, col+1)
+      @validMoves.push "#{row+direction}#{col+1}"
 
-  _isValidMoveForKnight: ->
-    console.log @firstSquare.column
-    console.log @firstSquare.row
-    console.log @secondSquare.column
-    console.log @secondSquare.row
+  _markValidMovesForRook: ->
+    row = @firstSquare.row
+    col = @firstSquare.column
+    # up
+    if row isnt 0
+      for r in [row-1..0]
+        break if @_playerSquare(r,col)
+        @validMoves.push "#{r}#{col}"
+        break if @_enemySquare(r,col)
+    # down
+    if row isnt 7
+      for r in [row+1..7]
+        break if @_playerSquare(r,col)
+        @validMoves.push "#{r}#{col}"
+        break if @_enemySquare(r,col)
+    # left
+    if col isnt 0
+      for c in [col-1..0]
+        break if @_playerSquare(row,c)
+        @validMoves.push "#{row}#{c}"
+        break if @_enemySquare(row,c)
+    # right
+    if col isnt 7
+      for c in [col+1..7]
+        break if @_playerSquare(row,c)
+        @validMoves.push "#{row}#{c}"
+        break if @_enemySquare(row,c)
 
-  _isValidMoveForBishop: ->
-    console.log @firstSquare.column
-    console.log @firstSquare.row
-    console.log @secondSquare.column
-    console.log @secondSquare.row
+  _markValidMovesForKnight: ->
+    null
 
-  _isValidMoveForKing: ->
-    console.log @firstSquare.column
-    console.log @firstSquare.row
-    console.log @secondSquare.column
-    console.log @secondSquare.row
+  _markValidMovesForBishop: ->
+    null
 
-  _isValidMoveForQueen: ->
-    console.log @firstSquare.column
-    console.log @firstSquare.row
-    console.log @secondSquare.column
-    console.log @secondSquare.row
+  _markValidMovesForKing: ->
+    null
 
+  _markValidMovesForQueen: ->
+    null
+
+
+  _emptySquare: (row, column) ->
+    not @board[row][column]?
+
+  _enemySquare: (row, column) ->
+    piece = @board[row][column]
+    # is it a piece, and is it not the player's colour 
+    piece? and not new RegExp(@player.colour).test piece 
+
+  _playerSquare: (row, column) ->
+    piece = @board[row][column]
+    # is it a piece, and is it the player's colour 
+    piece? and new RegExp(@player.colour).test piece
 
 module.exports = GameStore

@@ -11,5 +11,7 @@ class Board extends React.Component
               row: row
               column: column
               piece: @props.board[row][column]
+              valid: "#{row}#{column}" in @props.validMoves
+              selected: "#{row}#{column}" is @props.selectedSquare
 
 module.exports = React.createFactory Board

@@ -68,6 +68,15 @@
     -1px 1px 0 #fff,
     1px 1px 0 #fff;
 }
+.square.valid-move.white{
+  background-color: #68bd77;
+}
+.square.valid-move.black{
+  background-color: #1e6900;
+}
+.square.selected {
+  background-color: #4176e2;
+}
 
 .board {
   width: 600px;
@@ -77,6 +86,12 @@
   margin: 20px;
   flex-direction: column;
   border: 2px solid black;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .row {

@@ -38916,7 +38916,8 @@ module.exports = GameActions;
 },{}],416:[function(require,module,exports){
 var Board, Square, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 div = React.DOM.div;
 
@@ -38941,13 +38942,15 @@ Board = (function(superClass) {
           className: 'row',
           key: "row-" + row
         }, (function() {
-          var j, results1;
+          var j, ref, results1;
           results1 = [];
           for (column = j = 0; j <= 7; column = ++j) {
             results1.push(Square({
               row: row,
               column: column,
-              piece: this.props.board[row][column]
+              piece: this.props.board[row][column],
+              valid: (ref = "" + row + column, indexOf.call(this.props.validMoves, ref) >= 0),
+              selected: ("" + row + column) === this.props.selectedSquare
             }));
           }
           return results1;
@@ -39188,6 +39191,12 @@ Square = (function(superClass) {
   Square.prototype.render = function() {
     var colourClass;
     colourClass = this.props.column % 2 === this.props.row % 2 ? 'black' : 'white';
+    if (this.props.valid) {
+      colourClass += ' valid-move';
+    }
+    if (this.props.selected) {
+      colourClass += ' selected';
+    }
     return div({
       className: "square " + colourClass,
       onClick: this._onClick
@@ -39307,6 +39316,7 @@ GameStore = App.Helpers.CreateStore({
   init: function() {
     this.display = {};
     this.game = null;
+    this.validMoves = [];
     this._initializeGame();
     this.firstSquare = null;
     return this.secondSquare = null;
@@ -39340,7 +39350,9 @@ GameStore = App.Helpers.CreateStore({
     return {
       game: this.game,
       display: this.display,
-      board: this.board
+      board: this.board,
+      validMoves: this.validMoves,
+      selectedSquare: this.firstSquare != null ? "" + this.firstSquare.row + this.firstSquare.column : void 0
     };
   },
   _initializeGame: function() {
@@ -39350,13 +39362,17 @@ GameStore = App.Helpers.CreateStore({
     var piece;
     piece = this.board[row][column];
     if (!((piece != null) && this._pieceIsUserColour(piece))) {
+      this._resetSelectedSquares();
+      this.update();
       return;
     }
-    return this.firstSquare = {
+    this.firstSquare = {
       column: column,
       row: row,
       piece: piece
     };
+    this._markValidMoves();
+    return this.update();
   },
   _setSecondSquare: function(column, row) {
     var piece;
@@ -39366,14 +39382,19 @@ GameStore = App.Helpers.CreateStore({
       row: row,
       piece: piece
     };
-    if (((piece != null) && this._pieceIsUserColour(piece)) || !this._isValidMove()) {
-      this.firstSquare = this.secondSquare = null;
+    if ((piece != null) && this._pieceIsUserColour(piece)) {
+      this._resetSelectedSquares();
+      this.update();
       return;
     }
     this.board[this.firstSquare.row][this.firstSquare.column] = null;
     this.board[row][column] = this.firstSquare.piece;
-    this.firstSquare = this.secondSquare = null;
+    this._resetSelectedSquares();
     return this.update();
+  },
+  _resetSelectedSquares: function() {
+    this.firstSquare = this.secondSquare = null;
+    return this.validMoves = [];
   },
   _setPlayerColour: function() {
     if (this.game.white_user_id === this.player.id) {
@@ -39385,100 +39406,118 @@ GameStore = App.Helpers.CreateStore({
   _pieceIsUserColour: function(piece) {
     return new RegExp(this.player.colour).test(piece);
   },
-  _isValidMove: function() {
+  _markValidMoves: function() {
     if (/pawn/.test(this.firstSquare.piece)) {
-      return this._isValidMoveForPawn();
+      return this._markValidMovesForPawn();
     } else if (/rook/.test(this.firstSquare.piece)) {
-      return this._isValidMoveForRook();
+      return this._markValidMovesForRook();
     } else if (/knight/.test(this.firstSquare.piece)) {
-      return this._isValidMoveForKnight();
+      return this._markValidMovesForKnight();
     } else if (/bishop/.test(this.firstSquare.piece)) {
-      return this._isValidMoveForBishop();
+      return this._markValidMovesForBishop();
     } else if (/king/.test(this.firstSquare.piece)) {
-      return this._isValidMoveForKing();
+      return this._markValidMovesForKing();
     } else if (/queen/.test(this.firstSquare.piece)) {
-      return this._isValidMoveForQueen();
+      return this._markValidMovesForQueen();
     } else {
       return false;
     }
   },
-  _isValidMoveForPawn: function() {
-    if (this.secondSquare.piece === null) {
-      if (this.firstSquare.column !== this.secondSquare.column) {
-        return false;
-      }
-      if (this.player.colour === 'white') {
-        if (this.firstSquare.row < this.secondSquare.row) {
-          return false;
-        }
-        if (this.firstSquare.row - 1 === this.secondSquare.row) {
-          return true;
-        }
-        if (this.firstSquare.row === 6 && this.secondSquare.row === 4) {
-          return true;
-        }
-        return false;
-      } else {
-        if (this.firstSquare.row > this.secondSquare.row) {
-          return false;
-        }
-        if (this.firstSquare.row + 1 === this.secondSquare.row) {
-          return true;
-        }
-        if (this.firstSquare.row === 1 && this.secondSquare.row(3)) {
-          return true;
-        }
-        return false;
-      }
-    } else {
-      if (this.player.colour === 'white') {
-        if (this.firstSquare.row - 1 !== this.secondSquare.row) {
-          return false;
-        }
-        if (!(this.firstSquare.column - 1 === this.secondSquare.column || this.firstSquare.column + 1 === this.secondSquare.column)) {
-          return false;
-        }
-        return true;
-      } else {
-        if (this.firstSquare.row - 1 !== this.secondSquare.row) {
-          return false;
-        }
-        if (!(this.firstSquare.column - 1 === this.secondSquare.row || this.firstSquare.column + 1 === this.secondSquare.row)) {
-          return false;
-        }
-        return true;
-      }
+  _markValidMovesForPawn: function() {
+    var col, direction, row;
+    row = this.firstSquare.row;
+    col = this.firstSquare.column;
+    direction = this.player.colour === 'white' ? -1 : 1;
+    if (this._emptySquare(row + direction, col)) {
+      this.validMoves.push("" + (row + direction) + col);
+    }
+    if (row === 6 && this._emptySquare(row + (direction * 2), col)) {
+      this.validMoves.push("" + (row + (direction * 2)) + col);
+    }
+    if (this._enemySquare(row + direction, col - 1)) {
+      this.validMoves.push("" + (row + direction) + (col - 1));
+    }
+    if (this._enemySquare(row + direction, col + 1)) {
+      return this.validMoves.push("" + (row + direction) + (col + 1));
     }
   },
-  _isValidMoveForRook: function() {
-    console.log(this.firstSquare.column);
-    console.log(this.firstSquare.row);
-    console.log(this.secondSquare.column);
-    return console.log(this.secondSquare.row);
+  _markValidMovesForRook: function() {
+    var c, col, i, j, k, l, r, ref, ref1, ref2, ref3, results, row;
+    row = this.firstSquare.row;
+    col = this.firstSquare.column;
+    if (row !== 0) {
+      for (r = i = ref = row - 1; ref <= 0 ? i <= 0 : i >= 0; r = ref <= 0 ? ++i : --i) {
+        if (this._playerSquare(r, col)) {
+          break;
+        }
+        this.validMoves.push("" + r + col);
+        if (this._enemySquare(r, col)) {
+          break;
+        }
+      }
+    }
+    if (row !== 7) {
+      for (r = j = ref1 = row + 1; ref1 <= 7 ? j <= 7 : j >= 7; r = ref1 <= 7 ? ++j : --j) {
+        if (this._playerSquare(r, col)) {
+          break;
+        }
+        this.validMoves.push("" + r + col);
+        if (this._enemySquare(r, col)) {
+          break;
+        }
+      }
+    }
+    if (col !== 0) {
+      for (c = k = ref2 = col - 1; ref2 <= 0 ? k <= 0 : k >= 0; c = ref2 <= 0 ? ++k : --k) {
+        if (this._playerSquare(row, c)) {
+          break;
+        }
+        this.validMoves.push("" + row + c);
+        if (this._enemySquare(row, c)) {
+          break;
+        }
+      }
+    }
+    if (col !== 7) {
+      results = [];
+      for (c = l = ref3 = col + 1; ref3 <= 7 ? l <= 7 : l >= 7; c = ref3 <= 7 ? ++l : --l) {
+        if (this._playerSquare(row, c)) {
+          break;
+        }
+        this.validMoves.push("" + row + c);
+        if (this._enemySquare(row, c)) {
+          break;
+        } else {
+          results.push(void 0);
+        }
+      }
+      return results;
+    }
   },
-  _isValidMoveForKnight: function() {
-    console.log(this.firstSquare.column);
-    console.log(this.firstSquare.row);
-    console.log(this.secondSquare.column);
-    return console.log(this.secondSquare.row);
+  _markValidMovesForKnight: function() {
+    return null;
   },
-  _isValidMoveForBishop: function() {
-    console.log(this.firstSquare.column);
-    console.log(this.firstSquare.row);
-    console.log(this.secondSquare.column);
-    return console.log(this.secondSquare.row);
+  _markValidMovesForBishop: function() {
+    return null;
   },
-  _isValidMoveForKing: function() {
-    console.log(this.firstSquare.column);
-    console.log(this.firstSquare.row);
-    console.log(this.secondSquare.column);
-    return console.log(this.secondSquare.row);
+  _markValidMovesForKing: function() {
+    return null;
   },
-  _isValidMoveForQueen: function() {
-    console.log(this.firstSquare.column);
-    console.log(this.firstSquare.row);
-    console.log(this.secondSquare.column);
-    return console.log(this.secondSquare.row);
+  _markValidMovesForQueen: function() {
+    return null;
+  },
+  _emptySquare: function(row, column) {
+    return this.board[row][column] == null;
+  },
+  _enemySquare: function(row, column) {
+    var piece;
+    piece = this.board[row][column];
+    return (piece != null) && !new RegExp(this.player.colour).test(piece);
+  },
+  _playerSquare: function(row, column) {
+    var piece;
+    piece = this.board[row][column];
+    return (piece != null) && new RegExp(this.player.colour).test(piece);
   }
 });
 

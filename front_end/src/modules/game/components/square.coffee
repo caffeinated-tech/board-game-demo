@@ -16,6 +16,9 @@ class Square extends React.Component
       'black'
     else
       'white'
+
+    colourClass += ' valid-move' if @props.valid
+    colourClass += ' selected' if @props.selected
     div 
       className: "square #{colourClass}"
       onClick: @_onClick
