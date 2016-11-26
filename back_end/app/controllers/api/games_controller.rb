@@ -34,7 +34,6 @@ module Api
   	end
 
     def join
-      puts game_id_params
       game = Game.find game_id_params[:game_id]
       game.join current_user
       game.save

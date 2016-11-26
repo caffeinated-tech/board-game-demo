@@ -39355,7 +39355,6 @@ GameStore = App.Helpers.CreateStore({
     this.display = {};
     this.game = null;
     this.validMoves = [];
-    this._initializeGame();
     this.firstSquare = null;
     this.secondSquare = null;
     return this.turn = 'white';
@@ -39366,6 +39365,7 @@ GameStore = App.Helpers.CreateStore({
   onSetGame: function(res) {
     this.game = res;
     this.update();
+    this._initializeGame();
     if (this.player != null) {
       return this._setPlayerColour();
     }
@@ -39385,6 +39385,7 @@ GameStore = App.Helpers.CreateStore({
     if ((this.game == null) && (user.game != null)) {
       this.game = user.game;
       this._setPlayerColour();
+      this._initializeGame();
     }
     return this.update();
   },
@@ -39398,7 +39399,17 @@ GameStore = App.Helpers.CreateStore({
     };
   },
   _initializeGame: function() {
-    return this.board = SetupStartingPieces();
+    var i, len, move, ref, results;
+    this.board = SetupStartingPieces();
+    ref = this.game.moves;
+    results = [];
+    for (i = 0, len = ref.length; i < len; i++) {
+      move = ref[i];
+      this.firstSquare = move.from;
+      this.secondSquare = move.to;
+      results.push(this._makeMove());
+    }
+    return results;
   },
   _setFirstSquare: function(column, row) {
     var piece;
@@ -39431,14 +39442,17 @@ GameStore = App.Helpers.CreateStore({
       this.update();
       return;
     }
+    this._recordMove();
     return this._makeMove();
   },
-  _makeMove: function() {
-    App.Modules.Game.actions.apiMove({
+  _recordMove: function() {
+    return App.Modules.Game.actions.apiMove({
       gameId: this.game.id,
       from: this.firstSquare,
       to: this.secondSquare
     });
+  },
+  _makeMove: function() {
     this.board[this.firstSquare.row][this.firstSquare.column] = null;
     this.board[this.secondSquare.row][this.secondSquare.column] = this.firstSquare.piece;
     this._resetSelectedSquares();
@@ -40748,11 +40762,9 @@ GameListStore = App.Helpers.CreateStore({
     return this.games = [];
   },
   registerListeners: function() {
-    console.log('this store is listeneting');
     return this.listenToMany(App.Modules.Lobby.GameList.actions);
   },
   onSetFilter: function(filter) {
-    console.log('set filter', filter);
     this.display.filter = filter;
     App.Modules.Lobby.GameList.actions.apiGetGames({
       filter: filter

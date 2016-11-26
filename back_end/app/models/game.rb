@@ -29,18 +29,16 @@ class Game
   def join(user)
     if white_user_id.present?
       return if white_user_id == user.id
-      black_user_id = user.id
-      black_user_name = user.name
+      self.black_user_id = user.id
+      self.black_user_name = user.name
     else
       return if black_user_id == user.id
-      white_user_id = user.id
-      white_user_name = user.name
+      self.white_user_id = user.id
+      self.white_user_name = user.name
     end
   end
 
   def record_move(from, to)
-    puts "from", from
-    puts "from", to
     self.moves << {
       from: from,
       to: to

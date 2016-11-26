@@ -4,7 +4,6 @@ GameStore = App.Helpers.CreateStore
     @display = {}
     @game = null
     @validMoves = []
-    @_initializeGame()
     @firstSquare = null 
     @secondSquare = null 
     @turn = 'white'
@@ -15,6 +14,7 @@ GameStore = App.Helpers.CreateStore
   onSetGame: (res) ->
     @game = res
     @update()
+    @_initializeGame()
     @_setPlayerColour() if @player?
 
 
@@ -30,6 +30,7 @@ GameStore = App.Helpers.CreateStore
     if not @game? and user.game?
       @game = user.game
       @_setPlayerColour()
+      @_initializeGame()
     @update()
 
   props: ->
@@ -41,6 +42,10 @@ GameStore = App.Helpers.CreateStore
 
   _initializeGame: ->
     @board = SetupStartingPieces() 
+    for move in @game.moves
+      @firstSquare = move.from
+      @secondSquare = move.to
+      @_makeMove()
       
   _setFirstSquare: (column, row) ->
     piece = @board[row][column]
@@ -71,15 +76,18 @@ GameStore = App.Helpers.CreateStore
       @_resetSelectedSquares()
       @update()
       return
+    @_recordMove()
     @_makeMove()
 
-  _makeMove: ->
-    # record move on server
+  _recordMove: ->
+    # record move on server 
+    # TODO: order needs to be guaranteed
     App.Modules.Game.actions.apiMove
       gameId: @game.id
       from: @firstSquare
       to: @secondSquare
 
+  _makeMove: ->
     # remove piece from first square
     @board[@firstSquare.row][@firstSquare.column] = null
     # place piece from first to second square
@@ -91,8 +99,6 @@ GameStore = App.Helpers.CreateStore
 
   _nextPlayer: ->
     @turn = if @turn is 'white' then 'black' else 'white' 
-    
-
 
   _resetSelectedSquares: ->
     @firstSquare = @secondSquare = null

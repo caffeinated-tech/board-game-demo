@@ -3,12 +3,11 @@ GameListStore = App.Helpers.CreateStore
   init: ->
     @display = {}
     @games = []
+    
   registerListeners: ->
-    console.log 'this store is listeneting'
     @listenToMany App.Modules.Lobby.GameList.actions
 
   onSetFilter: (filter) ->
-    console.log 'set filter', filter
     @display.filter = filter
     App.Modules.Lobby.GameList.actions.apiGetGames 
       filter: filter
