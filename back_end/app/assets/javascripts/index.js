@@ -39353,11 +39353,15 @@ module.exports = React.createFactory(Square);
 
 
 },{"./pieces/bishop":418,"./pieces/king":419,"./pieces/knight":420,"./pieces/pawn":421,"./pieces/queen":423,"./pieces/rook":424}],426:[function(require,module,exports){
-var Board, Controls, Game, div,
+var Board, Controls, Game, Link, br, div, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-div = React.DOM.div;
+ref = React.DOM, div = ref.div, br = ref.br;
+
+Link = ReactRouter.Link;
+
+Link = React.createFactory(Link);
 
 Board = require('./components/board');
 
@@ -39371,7 +39375,9 @@ Game = (function(superClass) {
   }
 
   Game.prototype.render = function() {
-    return div({}, this._gameReady() ? div({}, Board(this.props), Controls(this.props)) : (this.props.game != null) && this.props.game.finished ? div({}, 'This game is over', 'TODO: show game history') : div({}, 'Waiting on a player to join the game', 'TODO: joinable link'));
+    return div({}, this._gameReady() ? div({}, Board(this.props), Controls(this.props)) : div({}, (this.props.game != null) && this.props.game.finished ? div({}, 'This game is over', br({}), 'TODO: show game history') : div({}, 'Waiting on a player to join the game', br({}), 'TODO: joinable link'), br({}), Link({
+      to: '/lobby/create'
+    }, 'create a new game')));
   };
 
   Game.prototype._gameReady = function() {
@@ -40823,7 +40829,7 @@ GameList = (function(superClass) {
 
   GameList.prototype.render = function() {
     console.log('render GameList', this.props);
-    return div({}, this.props.games.length === 0 ? div({}, "There are no " + this.props.display.filter + " games, why not ", Link({
+    return div({}, this.props.games.length === 0 ? div({}, "There are no " + this.props.display.filter + " games, why not ", br({}), Link({
       to: '/lobby/create'
     }, 'create a new game')) : List(this.props));
   };
