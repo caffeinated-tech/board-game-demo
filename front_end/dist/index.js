@@ -39413,6 +39413,9 @@ GameStore = App.Helpers.CreateStore({
   },
   _setFirstSquare: function(column, row) {
     var piece;
+    if (!this._isMyTurn()) {
+      return;
+    }
     piece = this.board[row][column];
     if (!((piece != null) && this._pieceIsUserColour(piece))) {
       this._resetSelectedSquares();
@@ -39461,6 +39464,9 @@ GameStore = App.Helpers.CreateStore({
   },
   _nextPlayer: function() {
     return this.turn = this.turn === 'white' ? 'black' : 'white';
+  },
+  _isMyTurn: function() {
+    return this.game.local || this.turn === this.player.colour;
   },
   _resetSelectedSquares: function() {
     this.firstSquare = this.secondSquare = null;

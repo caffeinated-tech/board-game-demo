@@ -48,6 +48,7 @@ GameStore = App.Helpers.CreateStore
       @_makeMove()
       
   _setFirstSquare: (column, row) ->
+    return unless @_isMyTurn()
     piece = @board[row][column]
     # can only select a piece of the same colour as the user
     unless piece? and @_pieceIsUserColour(piece)
@@ -99,6 +100,9 @@ GameStore = App.Helpers.CreateStore
 
   _nextPlayer: ->
     @turn = if @turn is 'white' then 'black' else 'white' 
+
+  _isMyTurn: ->
+    @game.local or @turn is @player.colour
 
   _resetSelectedSquares: ->
     @firstSquare = @secondSquare = null
