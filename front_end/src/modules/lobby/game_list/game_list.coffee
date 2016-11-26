@@ -10,7 +10,7 @@ class GameList extends React.Component
     div {},
       if @props.games.length is 0
         div {},
-          "There are no Games, why not "
+          "There are no #{@props.display.filter} games, why not "
           Link { to: '/lobby/create' },
             'create a new game'
       else

@@ -2,23 +2,29 @@ module Api
   class GamesController < WebApplicationController
 
     def index
-      open_games = Game.where(
-        local: false,
-        finished: false,
-        private_game: false,
-        '$or' => [
-          { white_user_id: nil },
-          { black_user_id: nil }
-          ]
-        ).order(created_at: -1).entries
+      puts filter_params
+      open_games = if filter_params[:filter] == 'open'
+        Game.where(
+          local: false,
+          winner: nil,
+          private_game: false,
+          '$or' => [
+            { white_user_id: nil },
+            { black_user_id: nil }
+            ]
+          ).order(created_at: -1).entries
+      else
+        Game.where(
+          winner: { '$ne' => nil },
+          ).order(created_at: -1).entries
+      end
       render json: open_games
     end
 
   	def create    
-      game = Game.new(
+      @game = Game.new(
         private_game: !!game_params[:private_game],
         local: !!game_params[:local],
-        finished: false
         )
       # set the user who created the game as either the black or white player
       if game_params[:white]
@@ -26,7 +32,7 @@ module Api
         game.white_user_name = current_user.name 
       else
         game.black_user_id = current_user.id 
-        game.black_user_id = current_user.name
+        game.black_user_name = current_user.name
       end
       game.save
 
@@ -34,7 +40,6 @@ module Api
   	end
 
     def join
-      game = Game.find game_id_params[:game_id]
       game.join current_user
       game.save
 
@@ -42,14 +47,34 @@ module Api
     end
 
     def move
-      game = Game.find game_id_params[:game_id]
       game.record_move(from_params, to_params)
       game.save 
 
       head :ok
     end
 
+    def check_for_move
+      number = check_for_move_params[:number].to_i
+      move = game.moves[number]
+      render json: move
+    end
+
+    def forfeit
+      game.forfeit current_user
+      game.save 
+
+      render json: game
+    end
+
     private
+
+    def game
+      @game ||= Game.find game_id_params[:game_id]
+    end
+
+    def filter_params
+      params.permit(:filter)
+    end
 
     def game_params
       params.require(:game).permit(:white, :private_game, :local)
@@ -65,6 +90,10 @@ module Api
 
     def to_params
       params.require(:to).permit(:column, :row, :piece)
+    end
+
+    def check_for_move_params
+      params.permit(:number)
     end
   end
 end

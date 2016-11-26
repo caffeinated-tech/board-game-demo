@@ -6,7 +6,8 @@ class Game
 
   field :private_game, type: Boolean
   field :local, type: Boolean
-  field :finished, type: Boolean, default: false
+  field :winner, type: BSON::ObjectId
+  field :forfeited, type: Boolean, default: false
 
   field :white_user_id, type: BSON::ObjectId
   field :black_user_id, type: BSON::ObjectId
@@ -45,6 +46,15 @@ class Game
     }
   end
 
+  def forfeit(user)
+    self.forfeited = true
+    if white_user_id == user.id
+      self.winner = black_user_id
+    else
+      self.winner = white_user_id
+    end
+  end
+
   def as_json(options = {})
     data = {
       id: id.to_s,
@@ -54,7 +64,9 @@ class Game
       black_user_id: black_user_id&.to_s,
       white_user_name: white_user_name&.to_s,
       black_user_name: black_user_name&.to_s,
-      finished: finished,
+      finished: winner.present?,
+      winner: winner,
+      forfeited: forfeited,
       moves: moves
     }
   end

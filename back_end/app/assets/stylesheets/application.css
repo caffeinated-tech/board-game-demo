@@ -100,3 +100,36 @@
   display: flex;
   flex-direction: row;
 }
+
+.controls {
+  position: absolute; 
+  right: 5px;
+  top: 40px;
+}
+
+.controls .players {
+  width: 120px;
+  height: 50px;
+}
+
+.controls .players .white {
+  display: inline-block;
+  padding: 5px;
+  color:black;
+  background-color: white;
+}
+
+.controls .players .black {
+  padding: 5px;
+  display: inline-block;
+  color:white;
+  background-color: black;
+}
+
+.controls .players .turn {
+  border:3px solid #69ff69;
+}
+
+.button-warning {
+    background: #ff862c ;
+}

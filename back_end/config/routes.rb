@@ -21,6 +21,8 @@ Rails.application.routes.draw do
     resources :games, only: [:index, :create, :delete] do
       post 'join', to: 'games#join'
       post 'move', to: 'games#move'
+      post 'forfeit', to: 'games#forfeit'
+      get 'move/:number', to: 'games#check_for_move'
     end
   end
 end

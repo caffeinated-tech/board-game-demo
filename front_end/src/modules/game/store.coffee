@@ -3,6 +3,7 @@ GameStore = App.Helpers.CreateStore
   init: ->
     @display = {}
     @game = null
+    @player = null
     @validMoves = []
     @firstSquare = null 
     @secondSquare = null 
@@ -16,7 +17,6 @@ GameStore = App.Helpers.CreateStore
     @update()
     @_initializeGame()
     @_setPlayerColour() if @player?
-
 
   onSelectSquare: (column, row) ->
     return unless @game.local? or @turn is @player.colour
@@ -33,20 +33,52 @@ GameStore = App.Helpers.CreateStore
       @_initializeGame()
     @update()
 
+  onApiGetUpdatesCompleted: (move) ->
+    if move
+      console.log 'enemy made a move', move.from.piece
+      @_replayMove(move)
+      @game.moves.push move 
+      @_nextPlayer()
+      @update()
+    else
+      setTimeout @_checkForEnemyMove, 1000
+
+
+  onApiGetUpdatesFailed: (error) ->
+    setTimeout @_checkForEnemyMove, 3000
+
+  onApiForfeitCompleted: (game) ->
+    @game = game
+    @update()
+    window.alert("You have lost the game")
+
   props: ->
+    turn: @turn
     game: @game
     display: @display
     board: @board
+    player: @player
     validMoves: @validMoves
     selectedSquare: "#{@firstSquare.row}#{@firstSquare.column}" if @firstSquare?
 
   _initializeGame: ->
     @board = SetupStartingPieces() 
-    for move in @game.moves
-      @firstSquare = move.from
-      @secondSquare = move.to
-      @_makeMove()
+    @_replayMove(move) for move in @game.moves
+
+    # after applying the moves, count them. Black takes odd moves, white 
+    #   takes even moves
+    @turn = if @game.moves.length % 2 is 0
+      'white'
+    else
+      'black'
+    if not @game.local and @turn isnt @player.colour
+      @_checkForEnemyMove()
       
+  _replayMove: (move) ->
+    @firstSquare = move.from
+    @secondSquare = move.to
+    @_makeMove()
+
   _setFirstSquare: (column, row) ->
     return unless @_isMyTurn()
     piece = @board[row][column]
@@ -77,31 +109,48 @@ GameStore = App.Helpers.CreateStore
       @_resetSelectedSquares()
       @update()
       return
+
     @_recordMove()
     @_makeMove()
+    @_nextPlayer()
+    @update()
 
   _recordMove: ->
+    console.log 'record move'
     # record move on server 
     # TODO: order needs to be guaranteed
+    @game.moves.push
+      from: @firstSquare
+      to: @secondSquare
+    console.log 'move is ', @game.moves.length
     App.Modules.Game.actions.apiMove
       gameId: @game.id
       from: @firstSquare
       to: @secondSquare
 
   _makeMove: ->
+    console.log 'make move'
     # remove piece from first square
     @board[@firstSquare.row][@firstSquare.column] = null
     # place piece from first to second square
     @board[@secondSquare.row][@secondSquare.column] = @firstSquare.piece
     # reset selected squares after move
     @_resetSelectedSquares()
-    @_nextPlayer()
-    @update()
 
   _nextPlayer: ->
-    @turn = if @turn is 'white' then 'black' else 'white' 
+    console.log 'next player'
+    @turn = if @turn is 'white' then 'black' else 'white'
+    return if @game.local or @_isMyTurn()
+    @_checkForEnemyMove()
 
-  _isMyTurn: ->
+  _checkForEnemyMove: ->
+    # it is the enemies turn, we need to check the server to see if they made 
+    #   a move
+    App.Modules.Game.actions.apiGetUpdates
+      gameId: @game.id
+      nextMove: @game.moves.length 
+
+  _isMyTurn: -> 
     @game.local or @turn is @player.colour
 
   _resetSelectedSquares: ->

@@ -5,6 +5,7 @@ Api =
       xhr.open(method, args.url)
       # setup promise callbacks
       xhr.onload = ->
+        console.log 'xhr', xhr.response
         response = if xhr.response
           JSON.parse(xhr.response)
         else

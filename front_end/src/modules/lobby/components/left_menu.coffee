@@ -14,8 +14,8 @@ class LeftMenu extends React.Component
           Link { to: '/lobby/games/open', className: 'pure-menu-link'}, 
             "Open Games"
         li { className: 'pure-menu-item' },
-          Link { to: '/lobby/games/playing', className: 'pure-menu-link'}, 
-            "Ongoing games"
+          Link { to: '/lobby/games/closed', className: 'pure-menu-link'}, 
+            "Closed games"
         li { className: 'pure-menu-item' },
           Link { to: '/lobby/players', className: 'pure-menu-link'}, 
             "Players"
