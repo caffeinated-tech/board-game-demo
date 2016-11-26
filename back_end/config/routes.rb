@@ -19,7 +19,8 @@ Rails.application.routes.draw do
     end
 
     # creating and joining games
-    resources :games, only: [:create, :delete] do
+    resources :games, only: [:index, :create, :delete] do
+      post 'join', to: 'games#join'
     end
   end
 end

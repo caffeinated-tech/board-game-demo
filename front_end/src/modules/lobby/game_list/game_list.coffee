@@ -1,8 +1,19 @@
-{ div } = React.DOM
+{ div, br } = React.DOM
+{ Link } = ReactRouter
+
+Link = React.createFactory Link
+List = require './components/list'
 
 class GameList extends React.Component
-  render: ->
+  render: -> 
+    console.log 'render GameList', @props 
     div {},
-      "List of #{@props.display.filter} Games"
-      
+      if @props.games.length is 0
+        div {},
+          "There are no Games, why not "
+          Link { to: '/lobby/create' },
+            'create a new game'
+      else
+        List @props
+
 module.exports = React.createFactory GameList

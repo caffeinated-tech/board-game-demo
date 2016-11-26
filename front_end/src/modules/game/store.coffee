@@ -7,6 +7,7 @@ GameStore = App.Helpers.CreateStore
     @_initializeGame()
     @firstSquare = null 
     @secondSquare = null 
+    @turn = 'white'
 
   registerListeners: ->
     @listenToMany App.Modules.Game.actions
@@ -16,7 +17,9 @@ GameStore = App.Helpers.CreateStore
     @update()
     @_setPlayerColour() if @player?
 
+
   onSelectSquare: (column, row) ->
+    return unless @game.local? or @turn is @player.colour
     if @firstSquare?
       @_setSecondSquare column, row
     else
@@ -75,7 +78,13 @@ GameStore = App.Helpers.CreateStore
     @board[row][column] = @firstSquare.piece
     # reset selected squares after move
     @_resetSelectedSquares()
+    @_nextPlayer()
     @update()
+
+  _nextPlayer: ->
+    @turn = if @turn is 'white' then 'black' else 'white' 
+    
+
 
   _resetSelectedSquares: ->
     @firstSquare = @secondSquare = null
@@ -89,7 +98,7 @@ GameStore = App.Helpers.CreateStore
 
   # compare colour of user to the piece to see if they are allowed to move it
   _pieceIsUserColour: (piece) ->
-    new RegExp(@player.colour).test(piece)
+    new RegExp(@turn).test(piece)
 
   _markValidMoves: ->
     if /pawn/.test @firstSquare.piece
@@ -110,13 +119,13 @@ GameStore = App.Helpers.CreateStore
   _markValidMovesForPawn: ->
     row = @firstSquare.row
     col = @firstSquare.column
-    direction = if @player.colour is 'white' then -1 else 1 
+    direction = if @turn is 'white' then -1 else 1 
 
     # can move forward unless there is a piece in that spot
     if @_emptySquare(row + direction, col)
       @validMoves.push "#{row+direction}#{col}"
     # starting row means we can move forward by two
-    if row is 6 and @_emptySquare(row+(direction*2), col) 
+    if row is 6 or row is 1 and @_emptySquare(row+(direction*2), col) 
       @validMoves.push "#{row+(direction*2)}#{col}"
     # now check for pieces in the diagonal locaitons which can be taken
     if @_enemySquare(row + direction, col-1)
@@ -236,11 +245,11 @@ GameStore = App.Helpers.CreateStore
   _enemySquare: (row, column) ->
     piece = @board[row][column]
     # is it a piece, and is it not the player's colour 
-    piece? and not new RegExp(@player.colour).test piece 
+    piece? and not new RegExp(@turn).test piece 
 
   _playerSquare: (row, column) ->
     piece = @board[row][column]
     # is it a piece, and is it the player's colour 
-    piece? and new RegExp(@player.colour).test piece
+    piece? and new RegExp(@turn).test piece
 
 module.exports = GameStore

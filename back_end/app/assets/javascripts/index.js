@@ -35050,30 +35050,38 @@ typeof Set === 'function' && isNative(Set) &&
 // Set.prototype.keys
 Set.prototype != null && typeof Set.prototype.keys === 'function' && isNative(Set.prototype.keys);
 
+var setItem;
+var getItem;
+var removeItem;
+var getItemIDs;
+var addRoot;
+var removeRoot;
+var getRootIDs;
+
 if (canUseCollections) {
   var itemMap = new Map();
   var rootIDSet = new Set();
 
-  var setItem = function (id, item) {
+  setItem = function (id, item) {
     itemMap.set(id, item);
   };
-  var getItem = function (id) {
+  getItem = function (id) {
     return itemMap.get(id);
   };
-  var removeItem = function (id) {
+  removeItem = function (id) {
     itemMap['delete'](id);
   };
-  var getItemIDs = function () {
+  getItemIDs = function () {
     return Array.from(itemMap.keys());
   };
 
-  var addRoot = function (id) {
+  addRoot = function (id) {
     rootIDSet.add(id);
   };
-  var removeRoot = function (id) {
+  removeRoot = function (id) {
     rootIDSet['delete'](id);
   };
-  var getRootIDs = function () {
+  getRootIDs = function () {
     return Array.from(rootIDSet.keys());
   };
 } else {
@@ -35089,31 +35097,31 @@ if (canUseCollections) {
     return parseInt(key.substr(1), 10);
   };
 
-  var setItem = function (id, item) {
+  setItem = function (id, item) {
     var key = getKeyFromID(id);
     itemByKey[key] = item;
   };
-  var getItem = function (id) {
+  getItem = function (id) {
     var key = getKeyFromID(id);
     return itemByKey[key];
   };
-  var removeItem = function (id) {
+  removeItem = function (id) {
     var key = getKeyFromID(id);
     delete itemByKey[key];
   };
-  var getItemIDs = function () {
+  getItemIDs = function () {
     return Object.keys(itemByKey).map(getIDFromKey);
   };
 
-  var addRoot = function (id) {
+  addRoot = function (id) {
     var key = getKeyFromID(id);
     rootByKey[key] = true;
   };
-  var removeRoot = function (id) {
+  removeRoot = function (id) {
     var key = getKeyFromID(id);
     delete rootByKey[key];
   };
-  var getRootIDs = function () {
+  getRootIDs = function () {
     return Object.keys(rootByKey).map(getIDFromKey);
   };
 }
@@ -36683,8 +36691,20 @@ ReactPureComponent.prototype.isPureReactComponent = true;
 
 module.exports = ReactPureComponent;
 },{"./ReactComponent":352,"./ReactNoopUpdateQueue":359,"fbjs/lib/emptyObject":118,"object-assign":152}],364:[function(require,module,exports){
-arguments[4][265][0].apply(exports,arguments)
-},{"dup":265}],365:[function(require,module,exports){
+/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ */
+
+'use strict';
+
+module.exports = '15.4.1';
+},{}],365:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-present, Facebook, Inc.
@@ -38869,7 +38889,7 @@ window.App.Initializer.populateStores();
 window.App.Initializer.mount();
 
 
-},{"./constants":407,"./helpers/helper":412,"./initializer":414,"./modules/module":466,"./monkey_patches":467,"actioncable":1,"bluebird":4,"react":371,"react-dnd":167,"react-dom":187,"react-router":340,"reflux":399,"reflux-promise":395}],414:[function(require,module,exports){
+},{"./constants":407,"./helpers/helper":412,"./initializer":414,"./modules/module":468,"./monkey_patches":469,"actioncable":1,"bluebird":4,"react":371,"react-dnd":167,"react-dom":187,"react-router":340,"reflux":399,"reflux-promise":395}],414:[function(require,module,exports){
 var Initializer, SELECTOR, component;
 
 SELECTOR = '#react';
@@ -38900,7 +38920,7 @@ Initializer = {
 module.exports = Initializer;
 
 
-},{"./root_component":468}],415:[function(require,module,exports){
+},{"./root_component":470}],415:[function(require,module,exports){
 var GameActions;
 
 GameActions = Reflux.createActions({
@@ -39258,7 +39278,9 @@ Game = (function(superClass) {
   }
 
   Game.prototype.render = function() {
-    return div({}, Board(this.props));
+    var gameReady;
+    gameReady = (this.props.game.white_user_id != null) && (this.props.game.black_user_id != null);
+    return div({}, gameReady || (this.props.game.local != null) ? Board(this.props) : div({}, 'Waiting on a player to join the game'));
   };
 
   return Game;
@@ -39320,7 +39342,8 @@ GameStore = App.Helpers.CreateStore({
     this.validMoves = [];
     this._initializeGame();
     this.firstSquare = null;
-    return this.secondSquare = null;
+    this.secondSquare = null;
+    return this.turn = 'white';
   },
   registerListeners: function() {
     return this.listenToMany(App.Modules.Game.actions);
@@ -39333,6 +39356,9 @@ GameStore = App.Helpers.CreateStore({
     }
   },
   onSelectSquare: function(column, row) {
+    if (!((this.game.local != null) || this.turn === this.player.colour)) {
+      return;
+    }
     if (this.firstSquare != null) {
       return this._setSecondSquare(column, row);
     } else {
@@ -39393,7 +39419,11 @@ GameStore = App.Helpers.CreateStore({
     this.board[this.firstSquare.row][this.firstSquare.column] = null;
     this.board[row][column] = this.firstSquare.piece;
     this._resetSelectedSquares();
+    this._nextPlayer();
     return this.update();
+  },
+  _nextPlayer: function() {
+    return this.turn = this.turn === 'white' ? 'black' : 'white';
   },
   _resetSelectedSquares: function() {
     this.firstSquare = this.secondSquare = null;
@@ -39407,7 +39437,7 @@ GameStore = App.Helpers.CreateStore({
     }
   },
   _pieceIsUserColour: function(piece) {
-    return new RegExp(this.player.colour).test(piece);
+    return new RegExp(this.turn).test(piece);
   },
   _markValidMoves: function() {
     if (/pawn/.test(this.firstSquare.piece)) {
@@ -39430,11 +39460,11 @@ GameStore = App.Helpers.CreateStore({
     var col, direction, row;
     row = this.firstSquare.row;
     col = this.firstSquare.column;
-    direction = this.player.colour === 'white' ? -1 : 1;
+    direction = this.turn === 'white' ? -1 : 1;
     if (this._emptySquare(row + direction, col)) {
       this.validMoves.push("" + (row + direction) + col);
     }
-    if (row === 6 && this._emptySquare(row + (direction * 2), col)) {
+    if (row === 6 || row === 1 && this._emptySquare(row + (direction * 2), col)) {
       this.validMoves.push("" + (row + (direction * 2)) + col);
     }
     if (this._enemySquare(row + direction, col - 1)) {
@@ -39636,12 +39666,12 @@ GameStore = App.Helpers.CreateStore({
   _enemySquare: function(row, column) {
     var piece;
     piece = this.board[row][column];
-    return (piece != null) && !new RegExp(this.player.colour).test(piece);
+    return (piece != null) && !new RegExp(this.turn).test(piece);
   },
   _playerSquare: function(row, column) {
     var piece;
     piece = this.board[row][column];
-    return (piece != null) && new RegExp(this.player.colour).test(piece);
+    return (piece != null) && new RegExp(this.turn).test(piece);
   }
 });
 
@@ -40388,6 +40418,12 @@ CreateGame = (function(superClass) {
       value: 'private',
       ref: 'private'
     })), div({
+      className: 'pure-control-group'
+    }, label({}, 'Local Game'), input({
+      type: 'checkbox',
+      value: 'local',
+      ref: 'local'
+    })), div({
       className: 'pure-controls'
     }, a({
       className: 'pure-button pure-button-primary',
@@ -40398,7 +40434,8 @@ CreateGame = (function(superClass) {
   CreateGame.prototype.onClick = function() {
     return App.Modules.Lobby.CreateGame.actions.apiNewGame({
       white: this.refs.white.checked,
-      private_game: this.refs["private"].checked
+      private_game: this.refs["private"].checked,
+      local: this.refs.local.checked
     });
   };
 
@@ -40475,18 +40512,136 @@ module.exports = CreateGameStore;
 var GameListActions;
 
 GameListActions = Reflux.createActions({
-  setFilter: {}
+  setFilter: {},
+  apiGetGames: {
+    asyncResult: true
+  },
+  viewGame: {},
+  apiJoinGame: {
+    asyncResult: true
+  }
+});
+
+GameListActions.apiGetGames.listenAndPromise(function(args) {
+  return App.Helpers.Api.GET({
+    url: "/api/games?filter=" + args.filter
+  });
+});
+
+GameListActions.apiJoinGame.listenAndPromise(function(args) {
+  return App.Helpers.Api.POST({
+    url: "/api/games/" + args.gameId + "/join"
+  });
 });
 
 module.exports = GameListActions;
 
 
 },{}],453:[function(require,module,exports){
-var GameList, div,
+var GameRow, ref, span, td, tr,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-div = React.DOM.div;
+ref = React.DOM, tr = ref.tr, td = ref.td, span = ref.span;
+
+GameRow = (function(superClass) {
+  extend(GameRow, superClass);
+
+  function GameRow() {
+    this._goToGame = bind(this._goToGame, this);
+    return GameRow.__super__.constructor.apply(this, arguments);
+  }
+
+  GameRow.prototype.render = function() {
+    return tr({}, td({}, this.props.game.id), td({}, this.props.game.white_user_name || '--'), td({}, this.props.game.black_user_name || '--'), td({
+      onClick: this._goToGame
+    }, span({
+      className: 'pure-button'
+    }, this._open() ? 'Join' : 'View')));
+  };
+
+  GameRow.prototype._status = function() {
+    if (this._open()) {
+      return 'Open';
+    }
+  };
+
+  GameRow.prototype._open = function() {
+    return (this.props.game.black_user_id == null) || !this.props.game.white_user_id;
+  };
+
+  GameRow.prototype._goToGame = function() {
+    if (this._open()) {
+      return App.Modules.Lobby.GameList.actions.apiJoinGame({
+        gameId: this.props.game.id
+      });
+    } else {
+      return App.Modules.Lobby.GameList.actions.viewGame(this.props.game.id);
+    }
+  };
+
+  return GameRow;
+
+})(React.Component);
+
+module.exports = React.createFactory(GameRow);
+
+
+},{}],454:[function(require,module,exports){
+var GameRow, List, ref, table, tbody, td, th, thead, tr,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ref = React.DOM, table = ref.table, thead = ref.thead, tr = ref.tr, th = ref.th, tbody = ref.tbody, td = ref.td;
+
+GameRow = require('./game_row');
+
+List = (function(superClass) {
+  extend(List, superClass);
+
+  function List() {
+    return List.__super__.constructor.apply(this, arguments);
+  }
+
+  List.prototype.render = function() {
+    var game;
+    return table({
+      className: 'pure-table'
+    }, thead({}, tr({}, th({}, 'Created at'), th({}, 'White Player'), th({}, 'Black Player'), th({}, 'Action'))), tbody({}, (function() {
+      var i, len, ref1, results;
+      ref1 = this.props.games;
+      results = [];
+      for (i = 0, len = ref1.length; i < len; i++) {
+        game = ref1[i];
+        results.push(GameRow({
+          game: game,
+          key: game.id
+        }));
+      }
+      return results;
+    }).call(this)));
+  };
+
+  return List;
+
+})(React.Component);
+
+module.exports = React.createFactory(List);
+
+
+},{"./game_row":453}],455:[function(require,module,exports){
+var GameList, Link, List, br, div, ref,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ref = React.DOM, div = ref.div, br = ref.br;
+
+Link = ReactRouter.Link;
+
+Link = React.createFactory(Link);
+
+List = require('./components/list');
 
 GameList = (function(superClass) {
   extend(GameList, superClass);
@@ -40496,7 +40651,10 @@ GameList = (function(superClass) {
   }
 
   GameList.prototype.render = function() {
-    return div({}, "List of " + this.props.display.filter + " Games");
+    console.log('render GameList', this.props);
+    return div({}, this.props.games.length === 0 ? div({}, "There are no Games, why not ", Link({
+      to: '/lobby/create'
+    }, 'create a new game')) : List(this.props));
   };
 
   return GameList;
@@ -40506,7 +40664,7 @@ GameList = (function(superClass) {
 module.exports = React.createFactory(GameList);
 
 
-},{}],454:[function(require,module,exports){
+},{"./components/list":454}],456:[function(require,module,exports){
 var GameListModule;
 
 GameListModule = {
@@ -40519,7 +40677,7 @@ GameListModule = {
 module.exports = GameListModule;
 
 
-},{"./actions":452,"./game_list":453,"./root_component":455,"./store":456}],455:[function(require,module,exports){
+},{"./actions":452,"./game_list":455,"./root_component":457,"./store":458}],457:[function(require,module,exports){
 var GameList, RootComponent, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -40558,28 +40716,51 @@ RootComponent = (function(superClass) {
 module.exports = RootComponent;
 
 
-},{"./game_list":453}],456:[function(require,module,exports){
+},{"./game_list":455}],458:[function(require,module,exports){
 var GameListStore;
 
 GameListStore = App.Helpers.CreateStore({
   init: function() {
-    this.inputs = {};
     this.display = {};
-    return this.inputs = {};
+    return this.games = [];
   },
   registerListeners: function() {
+    console.log('this store is listeneting');
     return this.listenToMany(App.Modules.Lobby.GameList.actions);
   },
   onSetFilter: function(filter) {
+    console.log('set filter', filter);
     this.display.filter = filter;
+    App.Modules.Lobby.GameList.actions.apiGetGames({
+      filter: filter
+    });
     return this.update();
+  },
+  onApiJoinGameCompleted: function(game) {
+    App.Modules.Game.actions.setGame(game);
+    return ReactRouter.browserHistory.push("/game");
+  },
+  onViewGame: function(game) {
+    App.Modules.Game.actions.setGame(game);
+    return ReactRouter.browserHistory.push("/game/" + id);
+  },
+  onApiGetGamesCompleted: function(games) {
+    console.log('games', games);
+    this.games = games;
+    return this.update();
+  },
+  props: function() {
+    return {
+      display: this.display,
+      games: this.games
+    };
   }
 });
 
 module.exports = GameListStore;
 
 
-},{}],457:[function(require,module,exports){
+},{}],459:[function(require,module,exports){
 var LeftMenu, Lobby, div, h2, ref,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -40610,7 +40791,7 @@ Lobby = (function(superClass) {
 module.exports = React.createFactory(Lobby);
 
 
-},{"./components/left_menu":446}],458:[function(require,module,exports){
+},{"./components/left_menu":446}],460:[function(require,module,exports){
 var LobbyModule;
 
 LobbyModule = {
@@ -40628,7 +40809,7 @@ LobbyModule = {
 module.exports = LobbyModule;
 
 
-},{"./actions":445,"./create_game/module":449,"./game_list/module":454,"./lobby":457,"./player_list/module":460,"./root_component":464,"./store":465}],459:[function(require,module,exports){
+},{"./actions":445,"./create_game/module":449,"./game_list/module":456,"./lobby":459,"./player_list/module":462,"./root_component":466,"./store":467}],461:[function(require,module,exports){
 var PlayerListActions;
 
 PlayerListActions = Reflux.createActions({
@@ -40638,7 +40819,7 @@ PlayerListActions = Reflux.createActions({
 module.exports = PlayerListActions;
 
 
-},{}],460:[function(require,module,exports){
+},{}],462:[function(require,module,exports){
 var PlayerListModule;
 
 PlayerListModule = {
@@ -40651,7 +40832,7 @@ PlayerListModule = {
 module.exports = PlayerListModule;
 
 
-},{"./actions":459,"./player_list":461,"./root_component":462,"./store":463}],461:[function(require,module,exports){
+},{"./actions":461,"./player_list":463,"./root_component":464,"./store":465}],463:[function(require,module,exports){
 var PlayerList, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -40676,7 +40857,7 @@ PlayerList = (function(superClass) {
 module.exports = React.createFactory(PlayerList);
 
 
-},{}],462:[function(require,module,exports){
+},{}],464:[function(require,module,exports){
 var PlayerList, RootComponent, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -40704,7 +40885,7 @@ RootComponent = (function(superClass) {
 module.exports = RootComponent;
 
 
-},{"./player_list":461}],463:[function(require,module,exports){
+},{"./player_list":463}],465:[function(require,module,exports){
 var PlayerList;
 
 PlayerList = App.Helpers.CreateStore({
@@ -40718,7 +40899,7 @@ PlayerList = App.Helpers.CreateStore({
 module.exports = PlayerList;
 
 
-},{}],464:[function(require,module,exports){
+},{}],466:[function(require,module,exports){
 var Lobby, RootComponent, div,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -40746,7 +40927,7 @@ RootComponent = (function(superClass) {
 module.exports = RootComponent;
 
 
-},{"./lobby":457}],465:[function(require,module,exports){
+},{"./lobby":459}],467:[function(require,module,exports){
 var LobbyStore;
 
 LobbyStore = App.Helpers.CreateStore({
@@ -40760,7 +40941,7 @@ LobbyStore = App.Helpers.CreateStore({
 module.exports = LobbyStore;
 
 
-},{}],466:[function(require,module,exports){
+},{}],468:[function(require,module,exports){
 var Modules;
 
 Modules = {
@@ -40773,7 +40954,7 @@ Modules = {
 module.exports = Modules;
 
 
-},{"./game/module":426,"./home/module":439,"./layout/module":444,"./lobby/module":458}],467:[function(require,module,exports){
+},{"./game/module":426,"./home/module":439,"./layout/module":444,"./lobby/module":460}],469:[function(require,module,exports){
 var defineMonkeyPatches;
 
 defineMonkeyPatches = function() {
@@ -40783,7 +40964,7 @@ defineMonkeyPatches = function() {
 module.exports = defineMonkeyPatches;
 
 
-},{}],468:[function(require,module,exports){
+},{}],470:[function(require,module,exports){
 var IndexRoute, Link, RootComponent, Route, Router, browserHistory,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;

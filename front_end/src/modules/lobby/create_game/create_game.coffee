@@ -33,6 +33,13 @@ class CreateGame extends React.Component
               type: 'checkbox'
               value: 'private'
               ref: 'private'
+          div { className: 'pure-control-group' },
+            label {},
+              'Local Game'
+            input 
+              type: 'checkbox'
+              value: 'local'
+              ref: 'local'
           div { className: 'pure-controls' },
             a
               className: 'pure-button pure-button-primary'
@@ -43,6 +50,6 @@ class CreateGame extends React.Component
     App.Modules.Lobby.CreateGame.actions.apiNewGame
       white: @refs.white.checked
       private_game: @refs.private.checked
-
+      local: @refs.local.checked
       
 module.exports = React.createFactory CreateGame
