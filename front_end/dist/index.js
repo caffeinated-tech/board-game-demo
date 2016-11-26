@@ -38681,15 +38681,18 @@ Api = {
       xhr = new XMLHttpRequest();
       xhr.open(method, args.url);
       xhr.onload = function() {
-        var ref;
+        var ref, response;
+        response = xhr.response ? JSON.parse(xhr.response) : {};
         if ((200 <= (ref = xhr.status) && ref < 300)) {
-          return resolve(JSON.parse(xhr.response));
+          return resolve(response);
         } else {
-          return reject(JSON.parse(xhr.response));
+          return reject(response);
         }
       };
       xhr.onerror = function() {
-        return reject(JSON.parse(xhr.response));
+        var response;
+        response = xhr.response ? JSON.parse(xhr.response) : {};
+        return reject(JSON.parse(response));
       };
       xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
       xhr.setRequestHeader('X-CSRF-Token', App.Helpers.Cookies.read('CSRF-TOKEN'));
@@ -38706,7 +38709,6 @@ Api = {
     });
   },
   POST: function(args) {
-    console.log('post');
     return this.request('POST', args);
   },
   GET: function(args) {
@@ -38927,7 +38929,20 @@ GameActions = Reflux.createActions({
   setGame: {},
   selectSquare: {},
   setPlayer: {},
-  setEnemy: {}
+  setEnemy: {},
+  apiMove: {
+    asyncResult: true
+  }
+});
+
+GameActions.apiMove.listenAndPromise(function(args) {
+  return App.Helpers.Api.POST({
+    url: "/api/games/" + args.gameId + "/move",
+    data: {
+      from: args.from,
+      to: args.to
+    }
+  });
 });
 
 module.exports = GameActions;
@@ -39416,8 +39431,16 @@ GameStore = App.Helpers.CreateStore({
       this.update();
       return;
     }
+    return this._makeMove();
+  },
+  _makeMove: function() {
+    App.Modules.Game.actions.apiMove({
+      gameId: this.game.id,
+      from: this.firstSquare,
+      to: this.secondSquare
+    });
     this.board[this.firstSquare.row][this.firstSquare.column] = null;
-    this.board[row][column] = this.firstSquare.piece;
+    this.board[this.secondSquare.row][this.secondSquare.column] = this.firstSquare.piece;
     this._resetSelectedSquares();
     this._nextPlayer();
     return this.update();

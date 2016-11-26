@@ -19,11 +19,9 @@ GameListStore = App.Helpers.CreateStore
     App.Modules.Game.actions.setGame game
     ReactRouter.browserHistory.push "/game"
 
-
   onViewGame: (game) ->
     App.Modules.Game.actions.setGame game
     ReactRouter.browserHistory.push "/game/#{id}"
-
 
   onApiGetGamesCompleted: (games) ->
     console.log 'games', games
@@ -33,6 +31,5 @@ GameListStore = App.Helpers.CreateStore
   props: ->
     display: @display
     games: @games
-
 
 module.exports = GameListStore

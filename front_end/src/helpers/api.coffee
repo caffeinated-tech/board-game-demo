@@ -5,12 +5,20 @@ Api =
       xhr.open(method, args.url)
       # setup promise callbacks
       xhr.onload = ->
-        if 200 <= xhr.status < 300
-          resolve(JSON.parse(xhr.response))
+        response = if xhr.response
+          JSON.parse(xhr.response)
         else
-          reject(JSON.parse(xhr.response))
+          {}
+        if 200 <= xhr.status < 300
+          resolve(response)
+        else
+          reject(response)
       xhr.onerror = ->
-        reject(JSON.parse(xhr.response))
+        response = if xhr.response
+          JSON.parse(xhr.response)
+        else
+          {}
+        reject(JSON.parse(response))
       # set headers
       xhr.setRequestHeader(
         "Content-Type",
@@ -29,7 +37,6 @@ Api =
         xhr.send()
 
   POST: (args) ->
-    console.log 'post'
     @request('POST', args)
 
   GET: (args) ->

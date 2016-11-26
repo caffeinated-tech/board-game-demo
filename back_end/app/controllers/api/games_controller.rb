@@ -42,6 +42,14 @@ module Api
       render json: game
     end
 
+    def move
+      game = Game.find game_id_params[:game_id]
+      game.record_move(from_params, to_params)
+      game.save 
+
+      head :ok
+    end
+
     private
 
     def game_params
@@ -51,5 +59,14 @@ module Api
     def game_id_params
       params.permit(:game_id)
     end
+
+    def from_params
+      params.require(:from).permit(:column, :row, :piece)
+    end
+
+    def to_params
+      params.require(:to).permit(:column, :row, :piece)
+    end
   end
 end
+

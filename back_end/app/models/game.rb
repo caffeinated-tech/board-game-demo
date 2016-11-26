@@ -14,6 +14,9 @@ class Game
   field :white_user_name, type: String
   field :black_user_name, type: String
 
+  field :moves, type: Array, default: []
+
+
   scope :ongoing, -> { where(finished: false) }
 
   scope :ongoing_for_user, ->(user_id) {
@@ -35,6 +38,15 @@ class Game
     end
   end
 
+  def record_move(from, to)
+    puts "from", from
+    puts "from", to
+    self.moves << {
+      from: from,
+      to: to
+    }
+  end
+
   def as_json(options = {})
     data = {
       id: id.to_s,
@@ -44,7 +56,8 @@ class Game
       black_user_id: black_user_id&.to_s,
       white_user_name: white_user_name&.to_s,
       black_user_name: black_user_name&.to_s,
-      finished: finished
+      finished: finished,
+      moves: moves
     }
   end
 end

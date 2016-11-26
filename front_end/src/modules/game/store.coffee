@@ -71,11 +71,19 @@ GameStore = App.Helpers.CreateStore
       @_resetSelectedSquares()
       @update()
       return
-    # TODO: check if this move is valid
+    @_makeMove()
+
+  _makeMove: ->
+    # record move on server
+    App.Modules.Game.actions.apiMove
+      gameId: @game.id
+      from: @firstSquare
+      to: @secondSquare
+
     # remove piece from first square
     @board[@firstSquare.row][@firstSquare.column] = null
     # place piece from first to second square
-    @board[row][column] = @firstSquare.piece
+    @board[@secondSquare.row][@secondSquare.column] = @firstSquare.piece
     # reset selected squares after move
     @_resetSelectedSquares()
     @_nextPlayer()

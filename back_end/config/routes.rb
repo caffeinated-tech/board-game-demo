@@ -11,7 +11,6 @@ Rails.application.routes.draw do
 
   get '/logout', to: 'web_application#logout'
 
-
   namespace :api do
     # login and signup
     post 'users/login', to: 'users#login'
@@ -21,6 +20,7 @@ Rails.application.routes.draw do
     # creating and joining games
     resources :games, only: [:index, :create, :delete] do
       post 'join', to: 'games#join'
+      post 'move', to: 'games#move'
     end
   end
 end
