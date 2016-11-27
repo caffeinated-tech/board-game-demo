@@ -74,6 +74,13 @@ module Api
       render json: game
     end
 
+    def won
+      game.won won_params[:colour]
+      game.save
+
+      head :ok
+    end
+
     private
 
     def game
@@ -86,6 +93,10 @@ module Api
 
     def game_params
       params.require(:game).permit(:white, :private_game, :local)
+    end
+
+    def won_params
+      params.permit(:colour)
     end
 
     def game_id_params

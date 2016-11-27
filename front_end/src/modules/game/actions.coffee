@@ -6,6 +6,7 @@ GameActions = Reflux.createActions
   apiMove: { asyncResult: true }
   apiGetUpdates: { asyncResult: true }
   apiForfeit: { asyncResult: true }
+  apiWonGame: { asyncResult: true }
 
 GameActions.apiMove.listenAndPromise (args) ->
   App.Helpers.Api.POST
@@ -21,5 +22,11 @@ GameActions.apiGetUpdates.listenAndPromise (args) ->
 GameActions.apiForfeit.listenAndPromise (args) ->
   App.Helpers.Api.POST
     url: "/api/games/#{args.gameId}/forfeit"
+
+GameActions.apiWonGame.listenAndPromise (args) ->
+  App.Helpers.Api.POST
+    url: "/api/games/#{args.gameId}/won"
+    data:
+      colour: args.colour
   
 module.exports = GameActions

@@ -13,6 +13,7 @@ class Board extends React.Component
           for column in [0..7]
             thisSquare = "#{row}#{column}" 
             Square
+              key: thisSquare
               row: row
               column: column
               piece: @props.board[row][column]
@@ -20,4 +21,5 @@ class Board extends React.Component
               selected: thisSquare is @props.selectedSquare
               last: thisSquare is lastMove
               check: thisSquare is @props.check
+              
 module.exports = React.createFactory Board

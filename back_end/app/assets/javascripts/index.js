@@ -38940,6 +38940,9 @@ GameActions = Reflux.createActions({
   },
   apiForfeit: {
     asyncResult: true
+  },
+  apiWonGame: {
+    asyncResult: true
   }
 });
 
@@ -38962,6 +38965,15 @@ GameActions.apiGetUpdates.listenAndPromise(function(args) {
 GameActions.apiForfeit.listenAndPromise(function(args) {
   return App.Helpers.Api.POST({
     url: "/api/games/" + args.gameId + "/forfeit"
+  });
+});
+
+GameActions.apiWonGame.listenAndPromise(function(args) {
+  return App.Helpers.Api.POST({
+    url: "/api/games/" + args.gameId + "/won",
+    data: {
+      colour: args.colour
+    }
   });
 });
 
@@ -39006,6 +39018,7 @@ Board = (function(superClass) {
           for (column = j = 0; j <= 7; column = ++j) {
             thisSquare = "" + row + column;
             results1.push(Square({
+              key: thisSquare,
               row: row,
               column: column,
               piece: this.props.board[row][column],
@@ -39610,6 +39623,7 @@ GameStore = App.Helpers.CreateStore({
   },
   _nextPlayer: function() {
     console.log('next player');
+    this._checkIfGameOver();
     this._checkIfInCheck();
     this.turn = this.turn === 'white' ? 'black' : 'white';
     if (this.game.local || this._isMyTurn()) {
@@ -39887,6 +39901,29 @@ GameStore = App.Helpers.CreateStore({
       this.check = null;
     }
     return this.validMoves = [];
+  },
+  _checkIfGameOver: function() {
+    var lastMove, lastMoveTakenPiece, ref, winningColour;
+    ref = this.game.moves, lastMove = ref[ref.length - 1];
+    lastMoveTakenPiece = lastMove.to.piece;
+    if (!/king/.test(lastMove.to.piece)) {
+      return;
+    }
+    winningColour = lastMove.from.piece.split('_')[0];
+    console.log("the game was won by '" + winningColour);
+    if (this.game.local) {
+      alert(winningColour + " has won the game!");
+    } else {
+      if (this.player.colour === winningColour) {
+        alert("Congratulations, you won the game!");
+      } else {
+        alert("Bad luck, you lost this one.\nBetter luck next time");
+      }
+    }
+    return App.Modules.Game.actions.apiWonGame({
+      gameId: this.game.id,
+      colour: winningColour
+    });
   },
   _emptySquare: function(row, column) {
     return this.board[row][column] == null;

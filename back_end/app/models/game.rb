@@ -17,7 +17,6 @@ class Game
 
   field :moves, type: Array, default: []
 
-
   scope :ongoing, -> { where(finished: false) }
 
   scope :ongoing_for_user, ->(user_id) {
@@ -63,9 +62,18 @@ class Game
       ]}).update_all( ongoing_game_id: nil )
   end
 
-  def won(user)
+  def won(colour)
     self.forfeited = true
-    self.winner = user.id
+    
+    if self.local?
+      self.winner = colour
+    else
+      self.winner = if colour == 'white'
+        self.white_user_id
+      else
+        self.black_user_id
+      end
+    end
 
     User.where(
       id: { '$in' => [

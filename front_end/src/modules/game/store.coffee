@@ -145,6 +145,7 @@ GameStore = App.Helpers.CreateStore
 
   _nextPlayer: ->
     console.log 'next player'
+    @_checkIfGameOver()
     @_checkIfInCheck() # needs to run before we switch to the next user
     @turn = if @turn is 'white' then 'black' else 'white'
     return if @game.local or @_isMyTurn()
@@ -331,6 +332,25 @@ GameStore = App.Helpers.CreateStore
       @check = null
     # comment this line to see how check works
     @validMoves = []
+
+  _checkIfGameOver: ->
+    [..., lastMove] = @game.moves
+    lastMoveTakenPiece = lastMove.to.piece
+    return unless /king/.test lastMove.to.piece
+
+    winningColour = lastMove.from.piece.split('_')[0]
+    console.log "the game was won by '#{winningColour}"
+    if @game.local
+      alert("#{winningColour} has won the game!")
+    else
+      if @player.colour is winningColour
+        alert("Congratulations, you won the game!")
+      else
+        alert("Bad luck, you lost this one.\nBetter luck next time")
+
+    App.Modules.Game.actions.apiWonGame 
+      gameId: @game.id
+      colour: winningColour
 
   _emptySquare: (row, column) ->
     not @board[row][column]?

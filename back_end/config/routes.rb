@@ -22,6 +22,7 @@ Rails.application.routes.draw do
       post 'join', to: 'games#join'
       post 'move', to: 'games#move'
       post 'forfeit', to: 'games#forfeit'
+      post 'won', to: 'games#won'
       get 'move/:number', to: 'games#check_for_move'
     end
   end
