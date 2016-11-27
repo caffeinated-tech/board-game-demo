@@ -3,15 +3,20 @@ Square = require './square'
 
 class Board extends React.Component
   render: ->
+    if @props.game.moves.length > 0
+      [..., lastSquare] = @props.game.moves 
+      lastMove = "#{lastSquare.to.row}#{lastSquare.to.column}"
+      
     div { className: 'board' },
       for row in [0..7]
         div { className: 'row', key: "row-#{row}" },
           for column in [0..7]
+            thisSquare = "#{row}#{column}" 
             Square
               row: row
               column: column
               piece: @props.board[row][column]
-              valid: "#{row}#{column}" in @props.validMoves
-              selected: "#{row}#{column}" is @props.selectedSquare
-
+              valid: thisSquare in @props.validMoves
+              selected: thisSquare is @props.selectedSquare
+              last: thisSquare is lastMove
 module.exports = React.createFactory Board

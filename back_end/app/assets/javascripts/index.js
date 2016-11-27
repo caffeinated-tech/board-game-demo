@@ -38986,7 +38986,11 @@ Board = (function(superClass) {
   }
 
   Board.prototype.render = function() {
-    var column, row;
+    var column, lastMove, lastSquare, ref, row, thisSquare;
+    if (this.props.game.moves.length > 0) {
+      ref = this.props.game.moves, lastSquare = ref[ref.length - 1];
+      lastMove = "" + lastSquare.to.row + lastSquare.to.column;
+    }
     return div({
       className: 'board'
     }, (function() {
@@ -38997,15 +39001,17 @@ Board = (function(superClass) {
           className: 'row',
           key: "row-" + row
         }, (function() {
-          var j, ref, results1;
+          var j, results1;
           results1 = [];
           for (column = j = 0; j <= 7; column = ++j) {
+            thisSquare = "" + row + column;
             results1.push(Square({
               row: row,
               column: column,
               piece: this.props.board[row][column],
-              valid: (ref = "" + row + column, indexOf.call(this.props.validMoves, ref) >= 0),
-              selected: ("" + row + column) === this.props.selectedSquare
+              valid: indexOf.call(this.props.validMoves, thisSquare) >= 0,
+              selected: thisSquare === this.props.selectedSquare,
+              last: thisSquare === lastMove
             }));
           }
           return results1;
@@ -39308,6 +39314,9 @@ Square = (function(superClass) {
     }
     if (this.props.selected) {
       colourClass += ' selected';
+    }
+    if (this.props.last) {
+      colourClass += ' last-move';
     }
     return div({
       className: "square " + colourClass,
@@ -39652,7 +39661,7 @@ GameStore = App.Helpers.CreateStore({
     if (this._emptySquare(row + direction, col)) {
       this.validMoves.push("" + (row + direction) + col);
     }
-    if ((row === 6 || row === 1) && this._emptySquare(row + (direction * 2), col) && !this._enemySquare(row + direction, col)) {
+    if ((row === 6 || row === 1) && this._emptySquare(row + (direction * 2), col) && this._emptySquare(row + direction, col)) {
       this.validMoves.push("" + (row + (direction * 2)) + col);
     }
     if (this._enemySquare(row + direction, col - 1)) {
