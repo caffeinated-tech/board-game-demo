@@ -7,8 +7,8 @@ class Layout extends React.Component
   render: ->
     console.log 'render layout', @props
     div {},
-      NavBar()
+      NavBar @props
       div { className: 'content' },
         @props.children
 
-module.exports = Layout
+module.exports = React.createFactory Layout

@@ -20,7 +20,12 @@ module Api
       render json: open_games
     end
 
-  	def create    
+  	def create
+      # the user already has a game, redirect them to it
+      if current_user.ongoing_game_id.present?
+        return render json: current_user.ongoing_game
+      end
+
       @game = Game.new(
         private_game: !!game_params[:private_game],
         local: !!game_params[:local],
@@ -45,7 +50,7 @@ module Api
       game.join current_user
       game.save
       current_user.save
-      
+
       render json: game
     end
 

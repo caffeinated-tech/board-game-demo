@@ -3,7 +3,6 @@ CreateGameStore = App.Helpers.CreateStore
   init: ->
     @inputs = {}
     @display = {}
-    @inputs = {}
 
   registerListeners: ->
     @listenToMany App.Modules.Lobby.CreateGame.actions

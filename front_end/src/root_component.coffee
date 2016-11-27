@@ -13,12 +13,12 @@ class RootComponent extends React.Component
       ,
       Route
         path: '/'
-        component: App.Modules.Layout.component
+        component: App.Modules.Layout.rootComponent
         ,
         IndexRoute
           component: App.Modules.Home.rootComponent
         Route 
-          path: '/game'
+          path: '/game/:id'
           component: App.Modules.Game.rootComponent
         Route 
           path: '/lobby'
