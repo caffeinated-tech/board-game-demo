@@ -16,11 +16,11 @@ GameListStore = App.Helpers.CreateStore
   # the user has joined the game - now redirect the user to the game view
   onApiJoinGameCompleted: (game) ->
     App.Modules.Game.actions.setGame game
-    ReactRouter.browserHistory.push "/game"
+    ReactRouter.browserHistory.push "/game/#{game.id}"
 
   onViewGame: (game) ->
     App.Modules.Game.actions.setGame game
-    ReactRouter.browserHistory.push "/game/#{id}"
+    ReactRouter.browserHistory.push "/game/#{game.id}"
 
   onApiGetGamesCompleted: (games) ->
     console.log 'games', games

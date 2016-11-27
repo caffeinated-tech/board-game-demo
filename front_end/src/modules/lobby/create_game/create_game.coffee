@@ -33,7 +33,7 @@ class CreateGame extends React.Component
               type: 'checkbox'
               value: 'private'
               ref: 'private'
-              defaultValue: false
+              defaultChecked: false
               disabled: true
               title: 'disabled'
           span {},

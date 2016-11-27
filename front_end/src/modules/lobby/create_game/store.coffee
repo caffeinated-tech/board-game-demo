@@ -8,7 +8,8 @@ CreateGameStore = App.Helpers.CreateStore
     @listenToMany App.Modules.Lobby.CreateGame.actions
 
   onApiNewGameCompleted: (res) ->
+    console.log 'onApiNewGameCompleted', res
     App.Modules.Game.actions.setGame res
-    ReactRouter.browserHistory.push '/game'
+    ReactRouter.browserHistory.push "/game/#{res.id}"
 
 module.exports = CreateGameStore

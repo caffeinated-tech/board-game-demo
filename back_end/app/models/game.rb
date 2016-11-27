@@ -57,7 +57,7 @@ class Game
     end
 
     User.where(
-      user_id: { '$in' => [
+      id: { '$in' => [
         white_user_id,
         black_user_id
       ]}).update_all( ongoing_game_id: nil )
@@ -68,7 +68,7 @@ class Game
     self.winner = user.id
 
     User.where(
-      user_id: { '$in' => [
+      id: { '$in' => [
         white_user_id,
         black_user_id
       ]}).update_all( ongoing_game_id: nil )

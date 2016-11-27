@@ -9,10 +9,11 @@ Controls = require './components/controls'
 class Game extends React.Component
   render: -> 
     div {},
+    
+      Controls @props
       if @_gameReady()
         div {},
           Board @props
-          Controls @props
       else 
         div {},
           if @props.game? && @props.game.finished

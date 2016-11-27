@@ -39376,7 +39376,7 @@ Game = (function(superClass) {
   }
 
   Game.prototype.render = function() {
-    return div({}, this._gameReady() ? div({}, Board(this.props), Controls(this.props)) : div({}, (this.props.game != null) && this.props.game.finished ? div({}, 'This game is over', br({}), 'TODO: show game history') : div({}, 'Waiting on a player to join the game', br({}), 'TODO: joinable link'), br({}), Link({
+    return div({}, Controls(this.props), this._gameReady() ? div({}, Board(this.props)) : div({}, (this.props.game != null) && this.props.game.finished ? div({}, 'This game is over', br({}), 'TODO: show game history') : div({}, 'Waiting on a player to join the game', br({}), 'TODO: joinable link'), br({}), Link({
       to: '/lobby/create'
     }, 'create a new game')));
   };
@@ -40666,7 +40666,7 @@ CreateGame = (function(superClass) {
       type: 'checkbox',
       value: 'private',
       ref: 'private',
-      defaultValue: false,
+      defaultChecked: false,
       disabled: true,
       title: 'disabled'
     })), span({}, 'If you want to play on a single device, tick this box'), div({
@@ -40751,8 +40751,9 @@ CreateGameStore = App.Helpers.CreateStore({
     return this.listenToMany(App.Modules.Lobby.CreateGame.actions);
   },
   onApiNewGameCompleted: function(res) {
+    console.log('onApiNewGameCompleted', res);
     App.Modules.Game.actions.setGame(res);
-    return ReactRouter.browserHistory.push('/game');
+    return ReactRouter.browserHistory.push("/game/" + res.id);
   }
 });
 
@@ -40987,11 +40988,11 @@ GameListStore = App.Helpers.CreateStore({
   },
   onApiJoinGameCompleted: function(game) {
     App.Modules.Game.actions.setGame(game);
-    return ReactRouter.browserHistory.push("/game");
+    return ReactRouter.browserHistory.push("/game/" + game.id);
   },
   onViewGame: function(game) {
     App.Modules.Game.actions.setGame(game);
-    return ReactRouter.browserHistory.push("/game/" + id);
+    return ReactRouter.browserHistory.push("/game/" + game.id);
   },
   onApiGetGamesCompleted: function(games) {
     console.log('games', games);
