@@ -30,9 +30,12 @@ class Game extends React.Component
               'create a new game'
 
   _gameReady: ->
-    return false unless @props.game? and not @props.game.finished
-
-    (@props.game.white_user_id? and @props.game.black_user_id?) or 
+    console.log '_gameReady?', @props.game
+    return false unless @props.game? 
+    console.log '_gameReady?', @props.game.finished
+    return false if @props.game.finished
+    console.log 'a'
+    (@props.game.white_user_id and @props.game.black_user_id) or 
       @props.game.local
 
 module.exports = React.createFactory Game

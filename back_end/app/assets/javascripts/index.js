@@ -39381,10 +39381,16 @@ Game = (function(superClass) {
   };
 
   Game.prototype._gameReady = function() {
-    if (!((this.props.game != null) && !this.props.game.finished)) {
+    console.log('_gameReady?', this.props.game);
+    if (this.props.game == null) {
       return false;
     }
-    return ((this.props.game.white_user_id != null) && (this.props.game.black_user_id != null)) || this.props.game.local;
+    console.log('_gameReady?', this.props.game.finished);
+    if (this.props.game.finished) {
+      return false;
+    }
+    console.log('a');
+    return (this.props.game.white_user_id && this.props.game.black_user_id) || this.props.game.local;
   };
 
   return Game;
@@ -40588,13 +40594,16 @@ CreateGame = (function(superClass) {
       type: 'radio',
       name: 'player',
       value: 'black'
-    }), 'Black')), span({}, 'Are you planning on playing with a specific person?'), div({
+    }), 'Black')), span({}, 'Are you planning on playing with a specific person? (Disabled)'), div({
       className: 'pure-control-group'
     }, label({}, 'Private Game'), input({
       type: 'checkbox',
       value: 'private',
-      ref: 'private'
-    })), div({
+      ref: 'private',
+      defaultValue: false,
+      disabled: true,
+      title: 'disabled'
+    })), span({}, 'If you want to play on a single device, tick this box'), div({
       className: 'pure-control-group'
     }, label({}, 'Local Game'), input({
       type: 'checkbox',

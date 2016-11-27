@@ -2,7 +2,6 @@ module Api
   class GamesController < WebApplicationController
 
     def index
-      puts filter_params
       open_games = if filter_params[:filter] == 'open'
         Game.where(
           local: false,
@@ -36,13 +35,17 @@ module Api
       end
       game.save
 
+      current_user.ongoing_game_id = game.id
+      current_user.save
+
       render json: game
   	end
 
     def join
       game.join current_user
       game.save
-
+      current_user.save
+      
       render json: game
     end
 

@@ -25,7 +25,7 @@ class CreateGame extends React.Component
                 value: 'black' 
               'Black'
           span {},
-            'Are you planning on playing with a specific person?' 
+            'Are you planning on playing with a specific person? (Disabled)' 
           div { className: 'pure-control-group' },
             label {},
               'Private Game'
@@ -33,6 +33,11 @@ class CreateGame extends React.Component
               type: 'checkbox'
               value: 'private'
               ref: 'private'
+              defaultValue: false
+              disabled: true
+              title: 'disabled'
+          span {},
+            'If you want to play on a single device, tick this box' 
           div { className: 'pure-control-group' },
             label {},
               'Local Game'

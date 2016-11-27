@@ -37,6 +37,7 @@ class Game
       self.white_user_id = user.id
       self.white_user_name = user.name
     end
+    user.ongoing_game_id = self.id
   end
 
   def record_move(from, to)
@@ -47,15 +48,34 @@ class Game
   end
 
   def forfeit(user)
+    puts "forfeit"
     self.forfeited = true
     if white_user_id == user.id
       self.winner = black_user_id
     else
       self.winner = white_user_id
     end
+
+    User.where(
+      user_id: { '$in' => [
+        white_user_id,
+        black_user_id
+      ]}).update_all( ongoing_game_id: nil )
+  end
+
+  def won(user)
+    self.forfeited = true
+    self.winner = user.id
+
+    User.where(
+      user_id: { '$in' => [
+        white_user_id,
+        black_user_id
+      ]}).update_all( ongoing_game_id: nil )
   end
 
   def as_json(options = {})
+    puts "winner", self.winner
     data = {
       id: id.to_s,
       local: local,
@@ -64,7 +84,7 @@ class Game
       black_user_id: black_user_id&.to_s,
       white_user_name: white_user_name&.to_s,
       black_user_name: black_user_name&.to_s,
-      finished: winner.present?,
+      finished: false, #TODO
       winner: winner,
       forfeited: forfeited,
       moves: moves

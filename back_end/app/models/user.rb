@@ -7,8 +7,8 @@ class User
 
   field :name, type: String
   field :password_hash, type: String
-
   
+  field :ongoing_game_id, type: BSON::ObjectId  
 
   def password
     @password ||= Password.new(password_hash)
@@ -20,7 +20,8 @@ class User
   end
 
   def ongoing_game
-    Game.ongoing_for_user(self.id).first
+    return unless self.ongoing_game_id.present?
+    Game.find ongoing_game_id
   end
 
   def as_json(options = {})
