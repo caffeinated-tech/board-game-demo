@@ -39652,7 +39652,7 @@ GameStore = App.Helpers.CreateStore({
     if (this._emptySquare(row + direction, col)) {
       this.validMoves.push("" + (row + direction) + col);
     }
-    if (row === 6 || row === 1 && this._emptySquare(row + (direction * 2), col)) {
+    if ((row === 6 || row === 1) && this._emptySquare(row + (direction * 2), col) && !this._enemySquare(row + direction, col)) {
       this.validMoves.push("" + (row + (direction * 2)) + col);
     }
     if (this._enemySquare(row + direction, col - 1)) {

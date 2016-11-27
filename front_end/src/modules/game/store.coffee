@@ -196,7 +196,8 @@ GameStore = App.Helpers.CreateStore
     if @_emptySquare(row + direction, col)
       @validMoves.push "#{row+direction}#{col}"
     # starting row means we can move forward by two
-    if row is 6 or row is 1 and @_emptySquare(row+(direction*2), col) 
+    if (row is 6 or row is 1) and @_emptySquare(row+(direction*2), col) and
+       @_emptySquare(row + direction,col) 
       @validMoves.push "#{row+(direction*2)}#{col}"
     # now check for pieces in the diagonal locaitons which can be taken
     if @_enemySquare(row + direction, col-1)
