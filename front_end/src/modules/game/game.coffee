@@ -9,14 +9,14 @@ Controls = require './components/controls'
 class Game extends React.Component
   render: -> 
     div {},
-    
-      Controls @props
+      if @props.game?
+        Controls @props
       if @_gameReady()
         div {},
           Board @props
       else 
         div {},
-          if @props.game? && @props.game.finished
+          if @props.game?.finished
             div {},
               'This game is over'
               br {}
@@ -31,10 +31,8 @@ class Game extends React.Component
               'create a new game'
 
   _gameReady: ->
-    console.log '_gameReady?', @props.game
     return false unless @props.game? 
-    console.log '_gameReady?', @props.game.finished
-    return false if @props.game.finished
+    return false if @props.game?.finished
     console.log 'a'
     (@props.game.white_user_id and @props.game.black_user_id) or 
       @props.game.local

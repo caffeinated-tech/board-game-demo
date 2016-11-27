@@ -25,12 +25,16 @@ GameStore = App.Helpers.CreateStore
     else
       @_setFirstSquare column, row
     
-  onSetPlayer: (user) -> 
+  onSetPlayer: (user) ->
+    console.log 'onSetPlayer'
     @player = user 
     if not @game? and user.game?
       @game = user.game
       @_setPlayerColour()
       @_initializeGame()
+    # if there is no game, redirect the player to the create game view
+    unless @game?
+      ReactRouter.browserHistory.push "/lobby/create"
     @update()
 
   onApiGetUpdatesCompleted: (move) ->

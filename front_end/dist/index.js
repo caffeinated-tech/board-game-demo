@@ -39376,18 +39376,18 @@ Game = (function(superClass) {
   }
 
   Game.prototype.render = function() {
-    return div({}, Controls(this.props), this._gameReady() ? div({}, Board(this.props)) : div({}, (this.props.game != null) && this.props.game.finished ? div({}, 'This game is over', br({}), 'TODO: show game history') : div({}, 'Waiting on a player to join the game', br({}), 'TODO: joinable link'), br({}), Link({
+    var ref1;
+    return div({}, this.props.game != null ? Controls(this.props) : void 0, this._gameReady() ? div({}, Board(this.props)) : div({}, ((ref1 = this.props.game) != null ? ref1.finished : void 0) ? div({}, 'This game is over', br({}), 'TODO: show game history') : div({}, 'Waiting on a player to join the game', br({}), 'TODO: joinable link'), br({}), Link({
       to: '/lobby/create'
     }, 'create a new game')));
   };
 
   Game.prototype._gameReady = function() {
-    console.log('_gameReady?', this.props.game);
+    var ref1;
     if (this.props.game == null) {
       return false;
     }
-    console.log('_gameReady?', this.props.game.finished);
-    if (this.props.game.finished) {
+    if ((ref1 = this.props.game) != null ? ref1.finished : void 0) {
       return false;
     }
     console.log('a');
@@ -39478,11 +39478,15 @@ GameStore = App.Helpers.CreateStore({
     }
   },
   onSetPlayer: function(user) {
+    console.log('onSetPlayer');
     this.player = user;
     if ((this.game == null) && (user.game != null)) {
       this.game = user.game;
       this._setPlayerColour();
       this._initializeGame();
+    }
+    if (this.game == null) {
+      ReactRouter.browserHistory.push("/lobby/create");
     }
     return this.update();
   },
