@@ -63,6 +63,7 @@ GameStore = App.Helpers.CreateStore
     board: @board
     player: @player
     validMoves: @validMoves
+    check: @check
     selectedSquare: "#{@firstSquare.row}#{@firstSquare.column}" if @firstSquare?
 
   _initializeGame: ->
@@ -70,14 +71,15 @@ GameStore = App.Helpers.CreateStore
     @_replayMove(move) for move in @game.moves
 
     # after applying the moves, count them. Black takes odd moves, white 
-    #   takes even moves
+    #   takes even moves. but we set it to the opposite, then run the code for
+    #   updating the turn which checks for check
     @turn = if @game.moves.length % 2 is 0
-      'white'
-    else
       'black'
-    if not @game.local and @turn isnt @player.colour
-      @_checkForEnemyMove()
-      
+    else
+      'white'
+
+    @_nextPlayer()
+
   _replayMove: (move) ->
     @firstSquare = move.from
     @secondSquare = move.to
@@ -96,7 +98,7 @@ GameStore = App.Helpers.CreateStore
       column: column
       row: row
       piece: piece
-    @_markValidMoves()
+    @_markValidMoves(@firstSquare)
     @update()
 
   _setSecondSquare: (column, row) ->
@@ -143,6 +145,7 @@ GameStore = App.Helpers.CreateStore
 
   _nextPlayer: ->
     console.log 'next player'
+    @_checkIfInCheck() # needs to run before we switch to the next user
     @turn = if @turn is 'white' then 'black' else 'white'
     return if @game.local or @_isMyTurn()
     @_checkForEnemyMove()
@@ -171,43 +174,44 @@ GameStore = App.Helpers.CreateStore
   _pieceIsUserColour: (piece) ->
     new RegExp(@turn).test(piece)
 
-  _markValidMoves: ->
-    if /pawn/.test @firstSquare.piece
-      @_markValidMovesForPawn()
-    else if /rook/.test @firstSquare.piece
-      @_markValidMovesForRook()
-    else if /knight/.test @firstSquare.piece
-      @_markValidMovesForKnight()
-    else if /bishop/.test @firstSquare.piece
-      @_markValidMovesForBishop()
-    else if /king/.test @firstSquare.piece
-      @_markValidMovesForKing()
-    else if /queen/.test @firstSquare.piece
-      @_markValidMovesForQueen()
+  _markValidMoves: (piece) ->
+    if /pawn/.test piece.piece
+      @_markValidMovesForPawn(piece.row, piece.column)
+    else if /rook/.test piece.piece
+      @_markValidMovesForRook(piece.row, piece.column)
+    else if /knight/.test piece.piece
+      @_markValidMovesForKnight(piece.row, piece.column)
+    else if /bishop/.test piece.piece
+      @_markValidMovesForBishop(piece.row, piece.column)
+    else if /king/.test piece.piece
+      @_markValidMovesForKing(piece.row, piece.column)
+    else if /queen/.test piece.piece
+      @_markValidMovesForQueen(piece.row, piece.column)
     else
       false
 
-  _markValidMovesForPawn: ->
-    row = @firstSquare.row
-    col = @firstSquare.column
+  _markValidMovesForPawn: (row, col) ->
     direction = if @turn is 'white' then -1 else 1 
 
     # can move forward unless there is a piece in that spot
     if @_emptySquare(row + direction, col)
       @validMoves.push "#{row+direction}#{col}"
     # starting row means we can move forward by two
-    if (row is 6 or row is 1) and @_emptySquare(row+(direction*2), col) and
-       @_emptySquare(row + direction,col) 
-      @validMoves.push "#{row+(direction*2)}#{col}"
+    if @turn is 'white'
+      if row is 6 and @_emptySquare(row+(direction*2), col) and
+         @_emptySquare(row + direction,col) 
+        @validMoves.push "#{row+(direction*2)}#{col}"
+    else
+      if row is 1 and @_emptySquare(row+(direction*2), col) and
+         @_emptySquare(row + direction,col) 
+        @validMoves.push "#{row+(direction*2)}#{col}"
     # now check for pieces in the diagonal locaitons which can be taken
     if @_enemySquare(row + direction, col-1)
       @validMoves.push "#{row+direction}#{col-1}"
     if @_enemySquare(row + direction, col+1)
       @validMoves.push "#{row+direction}#{col+1}"
 
-  _markValidMovesForRook: ->
-    row = @firstSquare.row
-    col = @firstSquare.column
+  _markValidMovesForRook: (row, col) ->
     # up
     if row isnt 0
       for r in [row-1..0]
@@ -233,9 +237,7 @@ GameStore = App.Helpers.CreateStore
         @validMoves.push "#{row}#{c}"
         break if @_enemySquare(row,c)
 
-  _markValidMovesForKnight: ->
-    row = @firstSquare.row
-    col = @firstSquare.column
+  _markValidMovesForKnight: (row, col) ->
     possibleMoves = []
     possibleMoves.push [row+1, col+2]
     possibleMoves.push [row+1, col-2]
@@ -250,9 +252,7 @@ GameStore = App.Helpers.CreateStore
       continue unless r in [0..7] and c in [0..7]
       @validMoves.push "#{r}#{c}" unless @_playerSquare(r,c)
 
-  _markValidMovesForBishop: ->
-    row = @firstSquare.row
-    col = @firstSquare.column
+  _markValidMovesForBishop: (row, col) ->
     # NE
     if row isnt 0 and col isnt 0
       c = col
@@ -290,9 +290,7 @@ GameStore = App.Helpers.CreateStore
         @validMoves.push "#{r}#{c}"
         break if @_enemySquare(r,c)
 
-  _markValidMovesForKing: ->
-    row = @firstSquare.row
-    col = @firstSquare.column
+  _markValidMovesForKing: (row, col)->
     possibleMoves = []
     possibleMoves.push [row,col+1]
     possibleMoves.push [row,col-1]
@@ -307,9 +305,32 @@ GameStore = App.Helpers.CreateStore
       continue unless r in [0..7] and c in [0..7]
       @validMoves.push "#{r}#{c}" unless @_playerSquare(r,c)
 
-  _markValidMovesForQueen: ->
-    @_markValidMovesForRook()
-    @_markValidMovesForBishop()
+  _markValidMovesForQueen: (row, col) ->
+    @_markValidMovesForRook(row, col)
+    @_markValidMovesForBishop(row, col)
+
+  # we check at the start of each users turn if their king is in check
+  _checkIfInCheck: ->
+    enemyKing = null
+    for row,rowCount in @board
+      for piece, colCount in row
+        continue if not piece?
+        if @_pieceIsUserColour(piece)
+          @_markValidMoves 
+            piece: piece
+            row: rowCount
+            column: colCount
+        else
+          # If it's the enemies king, save the co-ords for later 
+          enemyKing = "#{rowCount}#{colCount}" if /king/.test piece
+    # @validMoves array is now fully populated wit hall moves I can 
+    #   make, now check if the enemy king is in one of these squares
+    if enemyKing in @validMoves
+      @check = enemyKing
+    else 
+      @check = null
+    # comment this line to see how check works
+    @validMoves = []
 
   _emptySquare: (row, column) ->
     not @board[row][column]?

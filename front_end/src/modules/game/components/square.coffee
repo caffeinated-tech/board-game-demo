@@ -19,6 +19,7 @@ class Square extends React.Component
     colourClass += ' valid-move' if @props.valid
     colourClass += ' selected' if @props.selected
     colourClass += ' last-move' if @props.last
+    colourClass += ' in-check' if @props.check
 
     div 
       className: "square #{colourClass}"

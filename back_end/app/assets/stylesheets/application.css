@@ -80,6 +80,9 @@
 .square.last-move {
   background-color: #8aa7e0;
 }
+.square.in-check {
+  background-color: #ff2f2f;
+}
 
 .board {
   width: 600px;

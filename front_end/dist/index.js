@@ -39011,7 +39011,8 @@ Board = (function(superClass) {
               piece: this.props.board[row][column],
               valid: indexOf.call(this.props.validMoves, thisSquare) >= 0,
               selected: thisSquare === this.props.selectedSquare,
-              last: thisSquare === lastMove
+              last: thisSquare === lastMove,
+              check: thisSquare === this.props.check
             }));
           }
           return results1;
@@ -39318,6 +39319,9 @@ Square = (function(superClass) {
     if (this.props.last) {
       colourClass += ' last-move';
     }
+    if (this.props.check) {
+      colourClass += ' in-check';
+    }
     return div({
       className: "square " + colourClass,
       onClick: this._onClick
@@ -39526,6 +39530,7 @@ GameStore = App.Helpers.CreateStore({
       board: this.board,
       player: this.player,
       validMoves: this.validMoves,
+      check: this.check,
       selectedSquare: this.firstSquare != null ? "" + this.firstSquare.row + this.firstSquare.column : void 0
     };
   },
@@ -39537,10 +39542,8 @@ GameStore = App.Helpers.CreateStore({
       move = ref[i];
       this._replayMove(move);
     }
-    this.turn = this.game.moves.length % 2 === 0 ? 'white' : 'black';
-    if (!this.game.local && this.turn !== this.player.colour) {
-      return this._checkForEnemyMove();
-    }
+    this.turn = this.game.moves.length % 2 === 0 ? 'black' : 'white';
+    return this._nextPlayer();
   },
   _replayMove: function(move) {
     this.firstSquare = move.from;
@@ -39563,7 +39566,7 @@ GameStore = App.Helpers.CreateStore({
       row: row,
       piece: piece
     };
-    this._markValidMoves();
+    this._markValidMoves(this.firstSquare);
     return this.update();
   },
   _setSecondSquare: function(column, row) {
@@ -39607,6 +39610,7 @@ GameStore = App.Helpers.CreateStore({
   },
   _nextPlayer: function() {
     console.log('next player');
+    this._checkIfInCheck();
     this.turn = this.turn === 'white' ? 'black' : 'white';
     if (this.game.local || this._isMyTurn()) {
       return;
@@ -39636,33 +39640,37 @@ GameStore = App.Helpers.CreateStore({
   _pieceIsUserColour: function(piece) {
     return new RegExp(this.turn).test(piece);
   },
-  _markValidMoves: function() {
-    if (/pawn/.test(this.firstSquare.piece)) {
-      return this._markValidMovesForPawn();
-    } else if (/rook/.test(this.firstSquare.piece)) {
-      return this._markValidMovesForRook();
-    } else if (/knight/.test(this.firstSquare.piece)) {
-      return this._markValidMovesForKnight();
-    } else if (/bishop/.test(this.firstSquare.piece)) {
-      return this._markValidMovesForBishop();
-    } else if (/king/.test(this.firstSquare.piece)) {
-      return this._markValidMovesForKing();
-    } else if (/queen/.test(this.firstSquare.piece)) {
-      return this._markValidMovesForQueen();
+  _markValidMoves: function(piece) {
+    if (/pawn/.test(piece.piece)) {
+      return this._markValidMovesForPawn(piece.row, piece.column);
+    } else if (/rook/.test(piece.piece)) {
+      return this._markValidMovesForRook(piece.row, piece.column);
+    } else if (/knight/.test(piece.piece)) {
+      return this._markValidMovesForKnight(piece.row, piece.column);
+    } else if (/bishop/.test(piece.piece)) {
+      return this._markValidMovesForBishop(piece.row, piece.column);
+    } else if (/king/.test(piece.piece)) {
+      return this._markValidMovesForKing(piece.row, piece.column);
+    } else if (/queen/.test(piece.piece)) {
+      return this._markValidMovesForQueen(piece.row, piece.column);
     } else {
       return false;
     }
   },
-  _markValidMovesForPawn: function() {
-    var col, direction, row;
-    row = this.firstSquare.row;
-    col = this.firstSquare.column;
+  _markValidMovesForPawn: function(row, col) {
+    var direction;
     direction = this.turn === 'white' ? -1 : 1;
     if (this._emptySquare(row + direction, col)) {
       this.validMoves.push("" + (row + direction) + col);
     }
-    if ((row === 6 || row === 1) && this._emptySquare(row + (direction * 2), col) && this._emptySquare(row + direction, col)) {
-      this.validMoves.push("" + (row + (direction * 2)) + col);
+    if (this.turn === 'white') {
+      if (row === 6 && this._emptySquare(row + (direction * 2), col) && this._emptySquare(row + direction, col)) {
+        this.validMoves.push("" + (row + (direction * 2)) + col);
+      }
+    } else {
+      if (row === 1 && this._emptySquare(row + (direction * 2), col) && this._emptySquare(row + direction, col)) {
+        this.validMoves.push("" + (row + (direction * 2)) + col);
+      }
     }
     if (this._enemySquare(row + direction, col - 1)) {
       this.validMoves.push("" + (row + direction) + (col - 1));
@@ -39671,10 +39679,8 @@ GameStore = App.Helpers.CreateStore({
       return this.validMoves.push("" + (row + direction) + (col + 1));
     }
   },
-  _markValidMovesForRook: function() {
-    var c, col, i, j, k, l, r, ref, ref1, ref2, ref3, results, row;
-    row = this.firstSquare.row;
-    col = this.firstSquare.column;
+  _markValidMovesForRook: function(row, col) {
+    var c, i, j, k, l, r, ref, ref1, ref2, ref3, results;
     if (row !== 0) {
       for (r = i = ref = row - 1; ref <= 0 ? i <= 0 : i >= 0; r = ref <= 0 ? ++i : --i) {
         if (this._playerSquare(r, col)) {
@@ -39724,10 +39730,8 @@ GameStore = App.Helpers.CreateStore({
       return results;
     }
   },
-  _markValidMovesForKnight: function() {
-    var c, col, i, len, move, possibleMoves, r, results, row;
-    row = this.firstSquare.row;
-    col = this.firstSquare.column;
+  _markValidMovesForKnight: function(row, col) {
+    var c, i, len, move, possibleMoves, r, results;
     possibleMoves = [];
     possibleMoves.push([row + 1, col + 2]);
     possibleMoves.push([row + 1, col - 2]);
@@ -39752,10 +39756,8 @@ GameStore = App.Helpers.CreateStore({
     }
     return results;
   },
-  _markValidMovesForBishop: function() {
-    var c, col, i, j, k, l, r, ref, ref1, ref2, ref3, results, row;
-    row = this.firstSquare.row;
-    col = this.firstSquare.column;
+  _markValidMovesForBishop: function(row, col) {
+    var c, i, j, k, l, r, ref, ref1, ref2, ref3, results;
     if (row !== 0 && col !== 0) {
       c = col;
       for (r = i = ref = row - 1; ref <= 0 ? i <= 0 : i >= 0; r = ref <= 0 ? ++i : --i) {
@@ -39825,10 +39827,8 @@ GameStore = App.Helpers.CreateStore({
       return results;
     }
   },
-  _markValidMovesForKing: function() {
-    var c, col, i, len, move, possibleMoves, r, results, row;
-    row = this.firstSquare.row;
-    col = this.firstSquare.column;
+  _markValidMovesForKing: function(row, col) {
+    var c, i, len, move, possibleMoves, r, results;
     possibleMoves = [];
     possibleMoves.push([row, col + 1]);
     possibleMoves.push([row, col - 1]);
@@ -39853,9 +39853,40 @@ GameStore = App.Helpers.CreateStore({
     }
     return results;
   },
-  _markValidMovesForQueen: function() {
-    this._markValidMovesForRook();
-    return this._markValidMovesForBishop();
+  _markValidMovesForQueen: function(row, col) {
+    this._markValidMovesForRook(row, col);
+    return this._markValidMovesForBishop(row, col);
+  },
+  _checkIfInCheck: function() {
+    var colCount, enemyKing, i, j, len, len1, piece, ref, row, rowCount;
+    enemyKing = null;
+    ref = this.board;
+    for (rowCount = i = 0, len = ref.length; i < len; rowCount = ++i) {
+      row = ref[rowCount];
+      for (colCount = j = 0, len1 = row.length; j < len1; colCount = ++j) {
+        piece = row[colCount];
+        if (piece == null) {
+          continue;
+        }
+        if (this._pieceIsUserColour(piece)) {
+          this._markValidMoves({
+            piece: piece,
+            row: rowCount,
+            column: colCount
+          });
+        } else {
+          if (/king/.test(piece)) {
+            enemyKing = "" + rowCount + colCount;
+          }
+        }
+      }
+    }
+    if (indexOf.call(this.validMoves, enemyKing) >= 0) {
+      this.check = enemyKing;
+    } else {
+      this.check = null;
+    }
+    return this.validMoves = [];
   },
   _emptySquare: function(row, column) {
     return this.board[row][column] == null;
