@@ -39504,7 +39504,6 @@ GameStore = App.Helpers.CreateStore({
     }
   },
   onSetPlayer: function(user) {
-    console.log('onSetPlayer');
     this.player = user;
     if ((this.game == null) && (user.game != null)) {
       this.game = user.game;
@@ -39913,7 +39912,6 @@ GameStore = App.Helpers.CreateStore({
       return;
     }
     winningColour = lastMove.from.piece.split('_')[0];
-    console.log("the game was won by '" + winningColour);
     if (this.game.local) {
       alert(winningColour + " has won the game!");
     } else {
@@ -40540,7 +40538,6 @@ Layout = (function(superClass) {
   }
 
   Layout.prototype.render = function() {
-    console.log('render layout', this.props);
     return div({}, NavBar(this.props), div({
       className: 'content'
     }, this.props.children));
@@ -40605,7 +40602,6 @@ LayoutStore = App.Helpers.CreateStore({
     return this.listenTo(App.Modules.Home.store, this._getUser);
   },
   _getUser: function(data) {
-    console.log('_getUser', data.user);
     if (!data.user) {
       return;
     }
@@ -40613,8 +40609,6 @@ LayoutStore = App.Helpers.CreateStore({
     return this.update();
   },
   props: function() {
-    console.log('render layout props');
-    console.log(this.user);
     return {
       display: this.display,
       user: this.user

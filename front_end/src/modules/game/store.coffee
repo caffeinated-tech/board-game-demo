@@ -26,7 +26,6 @@ GameStore = App.Helpers.CreateStore
       @_setFirstSquare column, row
     
   onSetPlayer: (user) ->
-    console.log 'onSetPlayer'
     @player = user 
     if not @game? and user.game?
       @game = user.game
@@ -340,7 +339,6 @@ GameStore = App.Helpers.CreateStore
     return unless /king/.test lastMove.to.piece
 
     winningColour = lastMove.from.piece.split('_')[0]
-    console.log "the game was won by '#{winningColour}"
     if @game.local
       alert("#{winningColour} has won the game!")
     else
