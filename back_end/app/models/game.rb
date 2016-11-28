@@ -47,7 +47,6 @@ class Game
   end
 
   def forfeit(user)
-    puts "forfeit"
     self.forfeited = true
     if white_user_id == user.id
       self.winner = black_user_id

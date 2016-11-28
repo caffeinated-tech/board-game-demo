@@ -39074,10 +39074,10 @@ Controls = (function(superClass) {
       className: 'players'
     }, div({
       className: whiteClass,
-      title: this.props.game.white_user_name
+      title: this.props.game.white_user_name || '--'
     }, 'White'), div({
       className: blackClass,
-      title: this.props.game.black_user_name
+      title: this.props.game.black_user_name || '--'
     }, 'Black')), div({}, span({
       className: 'pure-button button-warning',
       onClick: this._forfeitGame
@@ -39904,6 +39904,9 @@ GameStore = App.Helpers.CreateStore({
   },
   _checkIfGameOver: function() {
     var lastMove, lastMoveTakenPiece, ref, winningColour;
+    if (this.game.moves.length === 0) {
+      return;
+    }
     ref = this.game.moves, lastMove = ref[ref.length - 1];
     lastMoveTakenPiece = lastMove.to.piece;
     if (!/king/.test(lastMove.to.piece)) {

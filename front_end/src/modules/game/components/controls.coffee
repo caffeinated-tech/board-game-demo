@@ -11,12 +11,12 @@ class Controls extends React.Component
       div { className: 'players' },
         div
           className: whiteClass
-          title: @props.game.white_user_name
+          title: @props.game.white_user_name || '--'
           ,
           'White'
         div
           className: blackClass
-          title: @props.game.black_user_name
+          title: @props.game.black_user_name || '--'
           ,
           'Black'
       div {},

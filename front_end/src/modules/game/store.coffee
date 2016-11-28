@@ -334,6 +334,7 @@ GameStore = App.Helpers.CreateStore
     @validMoves = []
 
   _checkIfGameOver: ->
+    return if @game.moves.length is 0
     [..., lastMove] = @game.moves
     lastMoveTakenPiece = lastMove.to.piece
     return unless /king/.test lastMove.to.piece
